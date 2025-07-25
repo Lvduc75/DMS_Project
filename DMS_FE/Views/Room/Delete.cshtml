@@ -1,0 +1,16 @@
+@model DMS_FE.Models.RoomModel
+@{
+    ViewData["Title"] = "Xác nhận xóa Phòng";
+}
+
+<h2>Xác nhận xóa Phòng</h2>
+@if (TempData["DeleteError"] != null)
+{
+    <div class="alert alert-danger">@TempData["DeleteError"]</div>
+}
+<p>Bạn có chắc chắn muốn xóa phòng <strong>@Model.Code</strong>?</p>
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a href="/Room/Manage" class="btn btn-secondary">Hủy</a>
+</form> 

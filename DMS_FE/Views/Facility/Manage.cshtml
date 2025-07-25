@@ -1,0 +1,40 @@
+@model List<DMS_FE.Models.FacilityViewModel>
+@{
+    ViewData["Title"] = "Quản lý Thiết bị";
+}
+
+<h2>Quản lý Thiết bị</h2>
+<a href="/Facility/Create" class="btn btn-success mb-3">+ Thêm thiết bị</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Tên thiết bị</th>
+            <th>Đơn giá</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int stt = 1;
+            foreach (var f in Model)
+            {
+                <tr>
+                    <td>@stt</td>
+                    <td>@f.Name</td>
+                    <td>@f.UnitPrice.ToString("N0")</td>
+                    <td>
+                        <a href="/Facility/Edit/@f.Id" class="btn btn-primary btn-sm">Sửa</a>
+                        <a href="/Facility/Delete/@f.Id" class="btn btn-danger btn-sm ms-1">Xóa</a>
+                    </td>
+                </tr>
+                stt++;
+            }
+        }
+        else
+        {
+            <tr><td colspan="4" class="text-center">Chưa có thiết bị nào.</td></tr>
+        }
+    </tbody>
+</table> 

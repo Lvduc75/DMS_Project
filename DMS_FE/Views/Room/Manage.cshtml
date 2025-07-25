@@ -1,0 +1,63 @@
+@model DMS_FE.Models.RoomManageViewModel
+@{
+    ViewData["Title"] = "Quản lý Phòng";
+}
+
+<h2>Quản lý Phòng</h2>
+<form method="get" class="mb-3">
+    <div class="row g-2 align-items-center">
+        <div class="col-auto">
+            <select name="dormitoryId" class="form-select" onchange="this.form.submit()">
+                <option value="">-- Tất cả ký túc xá --</option>
+                @if (Model.Dormitories != null)
+                {
+                    foreach (var d in Model.Dormitories)
+                    {
+                        var selected = Model.SelectedDormitoryId == d.Id ? "selected" : "";
+                        <option value="@d.Id">@d.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <a href="/Room/Create" class="btn btn-success">+ Thêm phòng</a>
+        </div>
+    </div>
+</form>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Mã phòng</th>
+            <th>Sức chứa</th>
+            <th>Trạng thái</th>
+            <th>Ký túc xá</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Rooms != null && Model.Rooms.Any())
+        {
+            int stt = 1;
+            foreach (var room in Model.Rooms)
+            {
+                <tr>
+                    <td>@stt</td>
+                    <td>@room.Code</td>
+                    <td>@room.Capacity</td>
+                    <td>@room.Status</td>
+                    <td>@room.DormitoryName</td>
+                    <td>
+                        <a href="/Room/Edit/@room.Id" class="btn btn-primary btn-sm">Sửa</a>
+                        <a href="/Room/Delete/@room.Id" class="btn btn-danger btn-sm ms-1">Xóa</a>
+                    </td>
+                </tr>
+                stt++;
+            }
+        }
+        else
+        {
+            <tr><td colspan="6" class="text-center">Chưa có phòng nào.</td></tr>
+        }
+    </tbody>
+</table> 

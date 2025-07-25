@@ -1,0 +1,16 @@
+@model DMS_FE.Models.DormitoryModel
+@{
+    ViewData["Title"] = "Xác nhận xóa Ký túc xá";
+}
+
+<h2>Xác nhận xóa Ký túc xá</h2>
+@if (TempData["DeleteError"] != null)
+{
+    <div class="alert alert-danger">@TempData["DeleteError"]</div>
+}
+<p>Bạn có chắc chắn muốn xóa ký túc xá <strong>@Model.Name</strong>?</p>
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a href="/Dormitory/Manage" class="btn btn-secondary">Hủy</a>
+</form> 

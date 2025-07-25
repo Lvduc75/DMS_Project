@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+    <div class="row w-100 justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">Dormitory Management System</h3>
+                </div>
+                <div class="card-body text-center">
+                    <p class="lead mb-4">Please select your login portal:</p>
+                    <div class="d-grid gap-3">
+                        <a href="/Student/Login" class="btn btn-outline-primary btn-lg">Login as Student</a>
+                        <a href="/Account/Login" class="btn btn-outline-success btn-lg">Login as Manager</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

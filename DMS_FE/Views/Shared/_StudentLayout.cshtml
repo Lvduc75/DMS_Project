@@ -1,0 +1,101 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Student Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background: #0d6efd;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 220px;
+            z-index: 100;
+        }
+        .sidebar .nav-link {
+            color: #cfe2ff;
+            font-weight: 500;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            color: #fff;
+            background: #2563eb;
+        }
+        .sidebar .nav-link i {
+            margin-right: 8px;
+        }
+        .main-content {
+            margin-left: 220px;
+            padding: 32px 24px 24px 24px;
+        }
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 101;
+        }
+        .footer {
+            background: #fff;
+            border-top: 1px solid #dee2e6;
+            padding: 12px 24px;
+            text-align: right;
+            color: #6c757d;
+        }
+    </style>
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    <div class="sidebar d-flex flex-column p-3">
+        <a href="/Student/Home" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+            <i class="bi bi-person-circle fs-3 me-2"></i>
+            <span class="fs-5 fw-bold">Student Portal</span>
+        </a>
+        <hr />
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item"><a href="/Student/Home" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house"></i> Dashboard</a></li>
+            <li><a href="/Student/Request" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Request" ? "active" : "")"><i class="bi bi-plus-circle"></i> Create Request</a></li>
+            <li><a href="/Student/MyRequests" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MyRequests" ? "active" : "")"><i class="bi bi-list-check"></i> My Requests</a></li>
+            <li><a href="/Student/Profile" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")"><i class="bi bi-person"></i> My Info</a></li>
+        </ul>
+        <hr />
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle fs-4 me-2"></i>
+                <strong>Student</strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item" href="/Account/Logout">Sign out</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="header mb-4">
+            <div class="fs-4 fw-bold">@ViewData["Title"]</div>
+            <div>
+                <span class="badge bg-primary">Student Portal</span>
+            </div>
+        </div>
+        @RenderBody()
+        <div class="footer mt-4">
+            &copy; @DateTime.Now.Year Dormitory Management System
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html> 

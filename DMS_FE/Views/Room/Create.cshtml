@@ -1,0 +1,33 @@
+@model DMS_FE.Models.RoomCreateViewModel
+@{
+    ViewData["Title"] = "Thêm Phòng";
+}
+
+<h2>Thêm Phòng</h2>
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label for="Code" class="form-label">Mã phòng</label>
+        <input type="text" class="form-control" id="Code" name="Code" value="@Model.Code" required />
+    </div>
+    <div class="mb-3">
+        <label for="Capacity" class="form-label">Sức chứa</label>
+        <input type="number" class="form-control" id="Capacity" name="Capacity" value="@Model.Capacity" required />
+    </div>
+    <div class="mb-3">
+        <label for="Status" class="form-label">Trạng thái</label>
+        <input type="text" class="form-control" id="Status" name="Status" value="@Model.Status" required />
+    </div>
+    <div class="mb-3">
+        <label for="DormitoryId" class="form-label">Ký túc xá</label>
+        <select class="form-select" id="DormitoryId" name="DormitoryId" required>
+            <option value="">-- Chọn ký túc xá --</option>
+            @foreach (var d in Model.Dormitories)
+            {
+                var selected = Model.DormitoryId == d.Id ? "selected" : "";
+                <option value="@d.Id">@d.Name</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Thêm</button>
+    <a href="/Room/Manage" class="btn btn-secondary">Hủy</a>
+</form> 
