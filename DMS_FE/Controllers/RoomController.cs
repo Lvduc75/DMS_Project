@@ -1,10 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using DMS_FE.Helpers;
 using DMS_FE.Models;
 
@@ -102,6 +98,55 @@ namespace DMS_FE.Controllers
                 var msg = await response.Content.ReadAsStringAsync();
                 TempData["DeleteError"] = msg;
                 return RedirectToAction("Delete", new { id = Id });
+            }
+            return RedirectToAction("Manage");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AssignStudent(int id)
+        {
+            // Lấy thông tin phòng
+            var response = await _apiHelper.GetAsync($"/api/Room");
+            var json = await response.Content.ReadAsStringAsync();
+            var rooms = System.Text.Json.JsonSerializer.Deserialize<List<RoomViewModel>>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var room = rooms.FirstOrDefault(r => r.Id == id);
+            if (room == null) return NotFound();
+
+            // Lấy danh sách sinh viên (giả sử có API /api/User?role=Student)
+            var stuRes = await _apiHelper.GetAsync("/api/User?role=Student");
+            var stuJson = await stuRes.Content.ReadAsStringAsync();
+            var students = System.Text.Json.JsonSerializer.Deserialize<List<StudentSimpleViewModel>>(stuJson, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            // Lấy số sinh viên hiện tại trong phòng (giả sử có API /api/StudentRoom?roomId=...)
+            var srRes = await _apiHelper.GetAsync($"/api/StudentRoom?roomId={id}");
+            var srJson = await srRes.Content.ReadAsStringAsync();
+            int currentCount = 0;
+            if (srRes.IsSuccessStatusCode && !string.IsNullOrWhiteSpace(srJson) && srJson.TrimStart().StartsWith("["))
+            {
+                currentCount = System.Text.Json.JsonSerializer.Deserialize<List<object>>(srJson).Count;
+            }
+
+            var vm = new RoomAssignStudentViewModel
+            {
+                RoomId = room.Id,
+                RoomName = room.Code,
+                Capacity = room.Capacity,
+                CurrentCount = currentCount,
+                Students = students
+            };
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignStudent(RoomAssignStudentViewModel model)
+        {
+            var content = new System.Net.Http.StringContent(System.Text.Json.JsonSerializer.Serialize(new { studentId = model.StudentId }), System.Text.Encoding.UTF8, "application/json");
+            var response = await _apiHelper.PostAsync($"/api/Room/{model.RoomId}/assign-student", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                var msg = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError("", msg);
+                return View(model);
             }
             return RedirectToAction("Manage");
         }

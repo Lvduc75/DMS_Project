@@ -20,35 +20,24 @@ namespace DMS_FE.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _apiBaseUrl;
-        public AccountController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
-        {
-            _httpClientFactory = httpClientFactory;
-            _apiBaseUrl = configuration["ApiBaseUrl"] ?? "http://localhost:5000";
-        }
-
         [HttpGet]
         public IActionResult Login()
         {
-            return View(new Models.LoginViewModel());
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(Models.LoginViewModel model)
+        public IActionResult Login(string username, string password)
         {
-            var client = _httpClientFactory.CreateClient();
-            var content = new StringContent(JsonConvert.SerializeObject(new { username = model.Username, password = model.Password }), Encoding.UTF8, "application/json");
-            var response = await client.PostAsync($"{_apiBaseUrl}/api/auth/login", content);
-            if (response.IsSuccessStatusCode)
+            // TODO: Xử lý xác thực thật, tạm thời luôn thành công nếu có username
+            if (!string.IsNullOrEmpty(username))
             {
-                var result = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync());
-                HttpContext.Session.SetString("jwt", (string)result.token);
-                TempData["LoginSuccess"] = true;
-                return RedirectToAction("Index", "Home");
+                // Đăng nhập thành công, chuyển về Dashboard
+                return RedirectToAction("Index", "Dashboard");
             }
-            model.Error = "Invalid username or password";
-            return View(model);
+            // Đăng nhập thất bại, quay lại login
+            ViewBag.Error = "Sai tài khoản hoặc mật khẩu";
+            return View();
         }
     }
 } 

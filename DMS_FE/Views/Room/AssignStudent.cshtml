@@ -1,0 +1,39 @@
+@model DMS_FE.Models.RoomAssignStudentViewModel
+@{
+    ViewData["Title"] = "Phân công sinh viên vào phòng";
+}
+
+<h2>Phân công sinh viên vào phòng</h2>
+<div class="mb-3">
+    <strong>Phòng:</strong> @Model.RoomName<br />
+    <strong>Sức chứa:</strong> @Model.Capacity<br />
+    <strong>Đang ở:</strong> @Model.CurrentCount
+</div>
+@if (Model.CurrentCount >= Model.Capacity)
+{
+    <div class="alert alert-danger">Phòng đã đủ sức chứa!</div>
+}
+<form asp-action="AssignStudent" method="post">
+    <input type="hidden" name="RoomId" value="@Model.RoomId" />
+    <div class="mb-3">
+        <label for="StudentId" class="form-label">Chọn sinh viên</label>
+        <select class="form-select" id="StudentId" name="StudentId" required @(Model.CurrentCount >= Model.Capacity ? "disabled" : "")>
+            <option value="">-- Chọn sinh viên --</option>
+            @foreach (var s in Model.Students ?? new List<DMS_FE.Models.StudentSimpleViewModel>())
+            {
+                <option value="@s.Id">@s.Name</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary" @(Model.CurrentCount >= Model.Capacity ? "disabled" : "")>Phân công</button>
+    <a href="/Room/Manage" class="btn btn-secondary">Quay lại</a>
+</form>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger mt-2">
+        @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@err.ErrorMessage</div>
+        }
+    </div>
+} 

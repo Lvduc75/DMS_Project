@@ -20,8 +20,9 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 240px;
+            width: 260px;
             z-index: 100;
+            overflow-y: auto; /* Cho phép scroll dọc */
         }
         .sidebar .nav-link {
             color: #adb5bd;
@@ -34,8 +35,11 @@
         .sidebar .nav-link i {
             margin-right: 8px;
         }
+        .sidebar .collapse .nav-link {
+            padding-left: 2rem;
+        }
         .main-content {
-            margin-left: 240px;
+            margin-left: 260px;
             padding: 32px 24px 24px 24px;
         }
         .header {
@@ -63,18 +67,95 @@
     <div class="sidebar d-flex flex-column p-3">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
             <i class="bi bi-building fs-3 me-2"></i>
-            <span class="fs-5 fw-bold">Dormitory Admin</span>
+            <span class="fs-5 fw-bold">StuDorm Admin</span>
         </a>
         <hr />
         <ul class="nav nav-pills flex-column mb-auto">
             <li class="nav-item"><a href="/" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house"></i> Dashboard</a></li>
-            <li><a href="/Dormitory/Manage" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dormitory" ? "active" : "")"><i class="bi bi-building"></i> Dormitory & Rooms</a></li>
-            <li><a href="/Room/Manage" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Room" ? "active" : "")"><i class="bi bi-door-closed"></i> Room Management</a></li>
-            <li><a href="/Facility/Manage" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Facility" ? "active" : "")"><i class="bi bi-tools"></i> Facility Management</a></li>
-            <li><a href="/User/Index" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")"><i class="bi bi-people"></i> Users</a></li>
-            <li><a href="#" class="nav-link"><i class="bi bi-cash-coin"></i> Fees & Transactions</a></li>
-            <li><a href="#" class="nav-link"><i class="bi bi-envelope"></i> Requests</a></li>
-            <li><a href="#" class="nav-link"><i class="bi bi-megaphone"></i> News</a></li>
+            <!-- Dormitory & Room Management -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseDorm" role="button" aria-expanded="false" aria-controls="collapseDorm">
+                    <i class="bi bi-building"></i> Dormitory & Room Management <i class="bi bi-chevron-down float-end"></i>
+                </a>
+                <div class="collapse" id="collapseDorm">
+                    <ul class="nav flex-column ms-2">
+                        <li><a href="/Dormitory/Manage" class="nav-link">Dormitory Management</a></li>
+                        <li><a href="/Room/Manage" class="nav-link">Room Management</a></li>
+                        <li><a href="/DormFacility/Manage" class="nav-link">Dorm Facility Management</a></li>
+                        <li><a href="/RoomFacility/Manage" class="nav-link">Room Facility Management</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- Student Management -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseStudent" role="button" aria-expanded="false" aria-controls="collapseStudent">
+                    <i class="bi bi-person"></i> Student Management <i class="bi bi-chevron-down float-end"></i>
+                </a>
+                <div class="collapse" id="collapseStudent">
+                    <ul class="nav flex-column ms-2">
+                        <li><a href="/Student/Manage" class="nav-link">Student List</a></li>
+                        <li><a href="/Student/RoomHistory" class="nav-link">Room Assignment History</a></li>
+                        <li><a href="/Student/Profile" class="nav-link">Student Profile</a></li>
+                        <li><a href="/Student/Fees" class="nav-link">Personal Fees & Transactions</a></li>
+                        <li><a href="/Student/Requests" class="nav-link">Personal Requests</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- Fee & Transaction Management -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseFee" role="button" aria-expanded="false" aria-controls="collapseFee">
+                    <i class="bi bi-cash-coin"></i> Fee & Transaction Management <i class="bi bi-chevron-down float-end"></i>
+                </a>
+                <div class="collapse" id="collapseFee">
+                    <ul class="nav flex-column ms-2">
+                        <li><a href="/Fee/Manage" class="nav-link">Fee Management</a></li>
+                        <li><a href="/Transaction/Manage" class="nav-link">Transaction Management</a></li>
+                        <li><a href="/Fee/Tracking" class="nav-link">Payment Tracking</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- Request Management -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseRequest" role="button" aria-expanded="false" aria-controls="collapseRequest">
+                    <i class="bi bi-envelope"></i> Request Management <i class="bi bi-chevron-down float-end"></i>
+                </a>
+                <div class="collapse" id="collapseRequest">
+                    <ul class="nav flex-column ms-2">
+                        <li><a href="/Request/Manage" class="nav-link">Request List</a></li>
+                        <li><a href="/Request/Repair" class="nav-link">Repair Requests</a></li>
+                        <li><a href="/Request/Violation" class="nav-link">Violation Explanations</a></li>
+                        <li><a href="/Request/Leave" class="nav-link">Temporary Leave Requests</a></li>
+                        <li><a href="/Request/AutoRemind" class="nav-link">Auto Payment Reminders</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- News & Announcements -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseNews" role="button" aria-expanded="false" aria-controls="collapseNews">
+                    <i class="bi bi-megaphone"></i> News & Announcements <i class="bi bi-chevron-down float-end"></i>
+                </a>
+                <div class="collapse" id="collapseNews">
+                    <ul class="nav flex-column ms-2">
+                        <li><a href="/News/Post" class="nav-link">Post News/Announcements</a></li>
+                        <li><a href="/News/ByDormitory" class="nav-link">News by Dormitory</a></li>
+                        <li><a href="/News/Latest" class="nav-link">Latest News</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- User & Role Management -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseUser" role="button" aria-expanded="false" aria-controls="collapseUser">
+                    <i class="bi bi-people"></i> User & Role Management <i class="bi bi-chevron-down float-end"></i>
+                </a>
+                <div class="collapse" id="collapseUser">
+                    <ul class="nav flex-column ms-2">
+                        <li><a href="/User/Manage" class="nav-link">User Management</a></li>
+                        <li><a href="/User/Role" class="nav-link">Role Management</a></li>
+                        <li><a href="/User/Profile" class="nav-link">Profile</a></li>
+                        <li><a href="/Account/Logout" class="nav-link">Logout</a></li>
+                    </ul>
+                </div>
+            </li>
         </ul>
         <hr />
         <div class="dropdown">

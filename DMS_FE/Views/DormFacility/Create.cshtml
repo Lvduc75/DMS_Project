@@ -1,0 +1,36 @@
+@model DMS_FE.Models.DormFacilityViewModel
+@{
+    ViewData["Title"] = "Gán thiết bị cho tòa";
+}
+
+<h2>Gán thiết bị cho tòa</h2>
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label for="DormitoryId" class="form-label">Tòa</label>
+        <select class="form-select" id="DormitoryId" name="DormitoryId" required>
+            <option value="">-- Chọn tòa --</option>
+            @foreach (var d in Model.Dormitories ?? new List<DMS_FE.Models.DormitorySimpleViewModel>())
+            {
+                var selected = Model.DormitoryId == d.Id ? "selected" : "";
+                <option value="@d.Id">@d.Name</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="FacilityId" class="form-label">Thiết bị</label>
+        <select class="form-select" id="FacilityId" name="FacilityId" required>
+            <option value="">-- Chọn thiết bị --</option>
+            @foreach (var f in Model.Facilities ?? new List<DMS_FE.Models.FacilityViewModel>())
+            {
+                var selected = Model.FacilityId == f.Id ? "selected" : "";
+                <option value="@f.Id">@f.Name</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="Quantity" class="form-label">Số lượng</label>
+        <input type="number" class="form-control" id="Quantity" name="Quantity" value="@Model.Quantity" min="0" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Gán</button>
+    <a href="/DormFacility/Manage" class="btn btn-secondary">Hủy</a>
+</form> 

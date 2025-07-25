@@ -1,0 +1,42 @@
+@model List<DMS_FE.Models.DormFacilityViewModel>
+@{
+    ViewData["Title"] = "Quản lý Thiết bị theo Tòa";
+}
+
+<h2>Quản lý Thiết bị theo Tòa</h2>
+<a href="/DormFacility/Create" class="btn btn-success mb-3">+ Gán thiết bị cho tòa</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Tòa</th>
+            <th>Thiết bị</th>
+            <th>Số lượng</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            int stt = 1;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@stt</td>
+                    <td>@item.DormitoryName</td>
+                    <td>@item.FacilityName</td>
+                    <td>@item.Quantity</td>
+                    <td>
+                        <a href="/DormFacility/Edit/@item.Id" class="btn btn-primary btn-sm">Sửa</a>
+                        <a href="/DormFacility/Delete/@item.Id" class="btn btn-danger btn-sm ms-1">Xóa</a>
+                    </td>
+                </tr>
+                stt++;
+            }
+        }
+        else
+        {
+            <tr><td colspan="5" class="text-center">Chưa có dữ liệu.</td></tr>
+        }
+    </tbody>
+</table> 
