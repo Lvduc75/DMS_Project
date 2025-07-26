@@ -1,0 +1,135 @@
+@model IEnumerable<DMS.Models.Entities.ConfigPrice>
+
+@{
+    string GetServiceTypeName(string type)
+    {
+        return type?.ToLower() switch
+        {
+            "room" => "Phòng",
+            "electricity" => "Điện",
+            "water" => "Nước",
+            _ => type
+        };
+    }
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Cấu hình Giá</h2>
+        </div>
+        <div class="col text-end">
+            <a href="@Url.Action("Initialize")" class="btn btn-success me-2">
+                <i class="bi bi-gear"></i> Khởi tạo Giá Mặc định
+            </a>
+            <a href="@Url.Action("Create")" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Thêm Cấu hình Mới
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-gear fs-1 text-muted"></i>
+                    <h4 class="mt-3">Chưa có cấu hình giá</h4>
+                    <p class="text-muted">Hãy khởi tạo giá mặc định hoặc thêm cấu hình mới</p>
+                    <a href="@Url.Action("Initialize")" class="btn btn-primary">
+                        <i class="bi bi-gear"></i> Khởi tạo Giá Mặc định
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Loại</th>
+                                <th>Giá (VND)</th>
+                                <th>Mô tả</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>
+                                        <span class="badge bg-primary">@GetServiceTypeName(item.Type)</span>
+                                    </td>
+                                    <td>
+                                        <strong>@item.UnitPrice.ToString("N0")</strong>
+                                        @if (item.Type == "room")
+                                        {
+                                            <small class="text-muted">/tháng</small>
+                                        }
+                                        else if (item.Type == "electricity")
+                                        {
+                                            <small class="text-muted">/kWh</small>
+                                        }
+                                        else if (item.Type == "water")
+                                        {
+                                            <small class="text-muted">/m³</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @switch (item.Type)
+                                        {
+                                            case "room":
+                                                <span class="text-muted">Tiền phòng</span>
+                                                break;
+                                            case "electricity":
+                                                <span class="text-muted">Tiền điện</span>
+                                                break;
+                                            case "water":
+                                                <span class="text-muted">Tiền nước</span>
+                                                break;
+                                            default:
+                                                <span class="text-muted">Dịch vụ khác</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form method="post" action="@Url.Action("Delete", new { id = item.Id })" style="display: inline;">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                        onclick="return confirm('Bạn có chắc chắn muốn xóa cấu hình này?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div> 

@@ -46,11 +46,11 @@
                     <td>@room.Code</td>
                     <td>@room.Capacity</td>
                     <td>@room.Status</td>
-                    <td>@room.DormitoryName</td>
+                    <td>@room.Dormitory?.Name</td>
                     <td>
                         <a href="/Room/Edit/@room.Id" class="btn btn-primary btn-sm">Sửa</a>
                         <a href="/Room/Delete/@room.Id" class="btn btn-danger btn-sm ms-1">Xóa</a>
-                        <a href="/Room/AssignStudent/@room.Id" class="btn btn-success btn-sm ms-1">Phân công SV</a>
+                        <!-- <a href="/Room/AssignStudent/@room.Id" class="btn btn-success btn-sm ms-1">Phân công SV</a> -->
                     </td>
                 </tr>
                 stt++;

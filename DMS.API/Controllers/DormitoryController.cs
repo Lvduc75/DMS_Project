@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using DMS.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace DMS.API.Controllers
@@ -16,10 +17,57 @@ namespace DMS.API.Controllers
 
         // GET: api/Dormitory
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var dorms = _context.Dormitories.ToList();
-            return Ok(dorms);
+            var dormitories = await _context.Dormitories
+                .Include(d => d.Rooms)
+                .Include(d => d.DormFacilities)
+                .ThenInclude(df => df.Facility)
+                .Select(d => new
+                {
+                    d.Id,
+                    d.Name,
+                    // Thông tin bổ sung cho UI
+                    Address = $"Địa chỉ {d.Name}", // Placeholder - có thể thêm field Address vào Entity sau
+                    PhoneNumber = "0123456789", // Placeholder - có thể thêm field PhoneNumber vào Entity sau
+                    Status = "Hoạt động", // Placeholder - có thể thêm field Status vào Entity sau
+                    TotalRooms = d.Rooms.Count,
+                    AvailableRooms = d.Rooms.Count(r => r.Status == "Available"),
+                    OccupiedRooms = d.Rooms.Count(r => r.Status == "Occupied"),
+                    Facilities = d.DormFacilities.Select(df => df.Facility.Name).ToList()
+                })
+                .ToListAsync();
+
+            return Ok(dormitories);
+        }
+
+        // GET: api/Dormitory/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var dormitory = await _context.Dormitories
+                .Include(d => d.Rooms)
+                .Include(d => d.DormFacilities)
+                .ThenInclude(df => df.Facility)
+                .Where(d => d.Id == id)
+                .Select(d => new
+                {
+                    d.Id,
+                    d.Name,
+                    Address = $"Địa chỉ {d.Name}",
+                    PhoneNumber = "0123456789",
+                    Status = "Hoạt động",
+                    TotalRooms = d.Rooms.Count,
+                    AvailableRooms = d.Rooms.Count(r => r.Status == "Available"),
+                    OccupiedRooms = d.Rooms.Count(r => r.Status == "Occupied"),
+                    Facilities = d.DormFacilities.Select(df => df.Facility.Name).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (dormitory == null)
+                return NotFound();
+
+            return Ok(dormitory);
         }
 
         // POST: api/Dormitory

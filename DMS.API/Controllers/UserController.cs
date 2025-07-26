@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace DMS.API.Controllers
 {
@@ -33,6 +34,25 @@ namespace DMS.API.Controllers
             return Ok(user);
         }
 
+        // GET: api/user/students
+        [HttpGet("students")]
+        public async Task<ActionResult<IEnumerable<object>>> GetStudents()
+        {
+            var students = await _context.Users
+                .Where(u => u.Role == "Student")
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Name,
+                    u.Email,
+                    u.Phone,
+                    u.Role
+                })
+                .ToListAsync();
+
+            return Ok(students);
+        }
+
         // POST: api/user
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] User user)
@@ -58,6 +78,29 @@ namespace DMS.API.Controllers
             exist.Role = user.Role;
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        // PATCH: api/user/{id}/profile - Update profile for student
+        [HttpPatch("{id}/profile")]
+        public async Task<IActionResult> UpdateProfile(int id, [FromBody] object profileData)
+        {
+            var exist = await _context.Users.FindAsync(id);
+            if (exist == null) return NotFound();
+            
+            // Parse dynamic data
+            var data = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(profileData.ToString());
+            
+            if (data.ContainsKey("Name"))
+                exist.Name = data["Name"].ToString();
+            if (data.ContainsKey("Email"))
+                exist.Email = data["Email"].ToString();
+            if (data.ContainsKey("Phone"))
+                exist.Phone = data["Phone"].ToString();
+            if (data.ContainsKey("NewPassword") && !string.IsNullOrEmpty(data["NewPassword"].ToString()))
+                exist.Password = data["NewPassword"].ToString();
+            
+            await _context.SaveChangesAsync();
+            return Ok(exist);
         }
 
         // DELETE: api/user/5

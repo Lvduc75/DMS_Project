@@ -36,5 +36,14 @@ namespace DMS_FE.Helpers
         {
             return await _httpClient.DeleteAsync(endpoint);
         }
+
+        public async Task<HttpResponseMessage> PatchAsync(string endpoint, HttpContent content)
+        {
+            var request = new HttpRequestMessage(new HttpMethod("PATCH"), endpoint)
+            {
+                Content = content
+            };
+            return await _httpClient.SendAsync(request);
+        }
     }
 } 

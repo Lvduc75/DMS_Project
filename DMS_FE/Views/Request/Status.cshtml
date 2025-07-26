@@ -1,0 +1,165 @@
+@model List<DMS_FE.Models.RequestModel>
+@{
+    ViewData["Title"] = $"Requests - {ViewBag.Status}";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Requests - @ViewBag.Status</h4>
+                    <div class="card-tools">
+                        <div class="btn-group">
+                            <a href="@Url.Action("Manage", "Request")" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left"></i> All Requests
+                            </a>
+                            <a href="@Url.Action("Status", "Request", new { status = "Pending" })" class="btn btn-warning btn-sm">
+                                <i class="fas fa-clock"></i> Pending
+                            </a>
+                            <a href="@Url.Action("Status", "Request", new { status = "Approved" })" class="btn btn-success btn-sm">
+                                <i class="fas fa-check"></i> Approved
+                            </a>
+                            <a href="@Url.Action("Status", "Request", new { status = "Rejected" })" class="btn btn-danger btn-sm">
+                                <i class="fas fa-times"></i> Rejected
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Showing @Model.Count request(s) with status: <strong>@ViewBag.Status</strong>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Student</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Created At</th>
+                                        <th>Manager</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var request in Model)
+                                    {
+                                        <tr>
+                                            <td>@request.Id</td>
+                                            <td>@(request.Student?.Name ?? "N/A")</td>
+                                            <td>@request.Type</td>
+                                            <td>@(request.Description?.Length > 50 ? request.Description.Substring(0, 50) + "..." : request.Description)</td>
+                                            <td>
+                                                @switch (request.Status?.ToLower())
+                                                {
+                                                    case "pending":
+                                                        <span class="badge badge-warning">Pending</span>
+                                                        break;
+                                                    case "approved":
+                                                        <span class="badge badge-success">Approved</span>
+                                                        break;
+                                                    case "rejected":
+                                                        <span class="badge badge-danger">Rejected</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge badge-secondary">@request.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>@request.CreatedAt.ToString("MM/dd/yyyy HH:mm")</td>
+                                            <td>@(request.Manager?.Name ?? "Not Assigned")</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="@Url.Action("Details", "Request", new { id = request.Id })" class="btn btn-info btn-sm">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                    @if (request.Status?.ToLower() == "pending")
+                                                    {
+                                                        <a href="@Url.Action("Approve", "Request", new { id = request.Id })" class="btn btn-success btn-sm">
+                                                            <i class="fas fa-check"></i> Approve
+                                                        </a>
+                                                        <button type="button" class="btn btn-danger btn-sm" onclick="rejectRequest(@request.Id)">
+                                                            <i class="fas fa-times"></i> Reject
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No @ViewBag.Status requests found</h5>
+                            <p class="text-muted">There are no requests with status "@ViewBag.Status" at the moment.</p>
+                            <a href="@Url.Action("Manage", "Request")" class="btn btn-primary">
+                                <i class="fas fa-arrow-left"></i> View All Requests
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Request Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reject Request</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="rejectForm" method="post">
+                <div class="modal-body">
+                    <p>Are you sure you want to reject this request?</p>
+                    <input type="hidden" id="requestId" name="id" />
+                    <input type="hidden" name="status" value="Rejected" />
+                    <input type="hidden" name="managerId" value="1" /> <!-- This should be the actual manager ID -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function rejectRequest(requestId) {
+            $('#requestId').val(requestId);
+            $('#rejectModal').modal('show');
+        }
+
+        $('#rejectForm').on('submit', function(e) {
+            e.preventDefault();
+            var formData = $(this).serialize();
+            var url = '@Url.Action("Approve", "Request")' + '/' + $('#requestId').val();
+            
+            $.post(url, formData)
+                .done(function() {
+                    $('#rejectModal').modal('hide');
+                    location.reload();
+                })
+                .fail(function() {
+                    alert('Failed to reject request. Please try again.');
+                });
+        });
+    </script>
+} 

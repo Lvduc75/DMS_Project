@@ -1,110 +1,207 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using DMS_FE.Helpers;
 using DMS_FE.Models;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace DMS_FE.Controllers
 {
     public class RoomFacilityController : Controller
     {
         private readonly ApiHelper _apiHelper;
+
         public RoomFacilityController(ApiHelper apiHelper)
         {
             _apiHelper = apiHelper;
         }
 
+        // GET: /RoomFacility/Manage
         public async Task<IActionResult> Manage()
         {
-            var response = await _apiHelper.GetAsync("/api/RoomFacility");
-            var json = await response.Content.ReadAsStringAsync();
-            var list = JsonSerializer.Deserialize<List<RoomFacilityViewModel>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            return View(list);
+            ViewData["Title"] = "Quản Lý Tiện Ích Phòng";
+            
+            var response = await _apiHelper.GetAsync("/api/roomfacility");
+            if (response.IsSuccessStatusCode)
+            {
+                var roomFacilities = await response.Content.ReadFromJsonAsync<List<RoomFacilityModel>>();
+                return View(roomFacilities ?? new List<RoomFacilityModel>());
+            }
+            
+            return View(new List<RoomFacilityModel>());
         }
 
-        [HttpGet]
+        // GET: /RoomFacility/Create
         public async Task<IActionResult> Create()
         {
-            var roomRes = await _apiHelper.GetAsync("/api/Room");
-            var roomJson = await roomRes.Content.ReadAsStringAsync();
-            var rooms = JsonSerializer.Deserialize<List<RoomSimpleViewModel>>(roomJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            var facRes = await _apiHelper.GetAsync("/api/Facility");
-            var facJson = await facRes.Content.ReadAsStringAsync();
-            var facilities = JsonSerializer.Deserialize<List<FacilityViewModel>>(facJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            var vm = new RoomFacilityViewModel
+            ViewData["Title"] = "Thêm Tiện Ích Phòng";
+            
+            // Load rooms
+            var roomsResponse = await _apiHelper.GetAsync("/api/room");
+            if (roomsResponse.IsSuccessStatusCode)
             {
-                Rooms = rooms,
-                Facilities = facilities
-            };
-            return View(vm);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(RoomFacilityViewModel model)
-        {
-            var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
-            await _apiHelper.PostAsync("/api/RoomFacility", content);
-            return RedirectToAction("Manage");
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var response = await _apiHelper.GetAsync("/api/RoomFacility");
-            var json = await response.Content.ReadAsStringAsync();
-            var list = JsonSerializer.Deserialize<List<RoomFacilityViewModel>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            var item = list.FirstOrDefault(x => x.Id == id);
-            if (item == null) return NotFound();
-
-            var roomRes = await _apiHelper.GetAsync("/api/Room");
-            var roomJson = await roomRes.Content.ReadAsStringAsync();
-            var rooms = JsonSerializer.Deserialize<List<RoomSimpleViewModel>>(roomJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            var facRes = await _apiHelper.GetAsync("/api/Facility");
-            var facJson = await facRes.Content.ReadAsStringAsync();
-            var facilities = JsonSerializer.Deserialize<List<FacilityViewModel>>(facJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            item.Rooms = rooms;
-            item.Facilities = facilities;
-            return View(item);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Edit(RoomFacilityViewModel model)
-        {
-            var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
-            await _apiHelper.PutAsync($"/api/RoomFacility/{model.Id}", content);
-            return RedirectToAction("Manage");
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var response = await _apiHelper.GetAsync("/api/RoomFacility");
-            var json = await response.Content.ReadAsStringAsync();
-            var list = JsonSerializer.Deserialize<List<RoomFacilityViewModel>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            var item = list.FirstOrDefault(x => x.Id == id);
-            if (item == null) return NotFound();
-            return View(item);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteConfirmed(int Id)
-        {
-            var response = await _apiHelper.DeleteAsync($"/api/RoomFacility/{Id}");
-            if (!response.IsSuccessStatusCode)
-            {
-                var msg = await response.Content.ReadAsStringAsync();
-                TempData["DeleteError"] = msg;
-                return RedirectToAction("Delete", new { id = Id });
+                var rooms = await roomsResponse.Content.ReadFromJsonAsync<List<RoomModel>>();
+                ViewBag.Rooms = rooms ?? new List<RoomModel>();
             }
-            return RedirectToAction("Manage");
+            
+            // Load facilities
+            var facilitiesResponse = await _apiHelper.GetAsync("/api/facility");
+            if (facilitiesResponse.IsSuccessStatusCode)
+            {
+                var facilities = await facilitiesResponse.Content.ReadFromJsonAsync<List<FacilityModel>>();
+                ViewBag.Facilities = facilities ?? new List<FacilityModel>();
+            }
+            
+            return View();
+        }
+
+        // POST: /RoomFacility/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(RoomFacilityModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                var response = await _apiHelper.PostAsync("/api/roomfacility", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "Thêm tiện ích phòng thành công!";
+                    return RedirectToAction(nameof(Manage));
+                }
+                
+                var error = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, error);
+            }
+            
+            // Reload data for dropdowns
+            var roomsResponse = await _apiHelper.GetAsync("/api/room");
+            if (roomsResponse.IsSuccessStatusCode)
+            {
+                var rooms = await roomsResponse.Content.ReadFromJsonAsync<List<RoomModel>>();
+                ViewBag.Rooms = rooms ?? new List<RoomModel>();
+            }
+            
+            var facilitiesResponse = await _apiHelper.GetAsync("/api/facility");
+            if (facilitiesResponse.IsSuccessStatusCode)
+            {
+                var facilities = await facilitiesResponse.Content.ReadFromJsonAsync<List<FacilityModel>>();
+                ViewBag.Facilities = facilities ?? new List<FacilityModel>();
+            }
+            
+            return View(model);
+        }
+
+        // GET: /RoomFacility/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var response = await _apiHelper.GetAsync($"/api/roomfacility/{id}");
+            if (!response.IsSuccessStatusCode)
+                return NotFound();
+
+            var roomFacility = await response.Content.ReadFromJsonAsync<RoomFacilityModel>();
+            if (roomFacility == null)
+                return NotFound();
+
+            ViewData["Title"] = "Chỉnh Sửa Tiện Ích Phòng";
+            
+            // Load rooms
+            var roomsResponse = await _apiHelper.GetAsync("/api/room");
+            if (roomsResponse.IsSuccessStatusCode)
+            {
+                var rooms = await roomsResponse.Content.ReadFromJsonAsync<List<RoomModel>>();
+                ViewBag.Rooms = rooms ?? new List<RoomModel>();
+            }
+            
+            // Load facilities
+            var facilitiesResponse = await _apiHelper.GetAsync("/api/facility");
+            if (facilitiesResponse.IsSuccessStatusCode)
+            {
+                var facilities = await facilitiesResponse.Content.ReadFromJsonAsync<List<FacilityModel>>();
+                ViewBag.Facilities = facilities ?? new List<FacilityModel>();
+            }
+            
+            return View(roomFacility);
+        }
+
+        // POST: /RoomFacility/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, RoomFacilityModel model)
+        {
+            if (id != model.Id)
+                return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                var response = await _apiHelper.PutAsync($"/api/roomfacility/{id}", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = "Cập nhật tiện ích phòng thành công!";
+                    return RedirectToAction(nameof(Manage));
+                }
+                
+                var error = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, error);
+            }
+            
+            // Reload data for dropdowns
+            var roomsResponse = await _apiHelper.GetAsync("/api/room");
+            if (roomsResponse.IsSuccessStatusCode)
+            {
+                var rooms = await roomsResponse.Content.ReadFromJsonAsync<List<RoomModel>>();
+                ViewBag.Rooms = rooms ?? new List<RoomModel>();
+            }
+            
+            var facilitiesResponse = await _apiHelper.GetAsync("/api/facility");
+            if (facilitiesResponse.IsSuccessStatusCode)
+            {
+                var facilities = await facilitiesResponse.Content.ReadFromJsonAsync<List<FacilityModel>>();
+                ViewBag.Facilities = facilities ?? new List<FacilityModel>();
+            }
+            
+            return View(model);
+        }
+
+        // GET: /RoomFacility/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var response = await _apiHelper.GetAsync($"/api/roomfacility/{id}");
+            if (!response.IsSuccessStatusCode)
+                return NotFound();
+
+            var roomFacility = await response.Content.ReadFromJsonAsync<RoomFacilityModel>();
+            if (roomFacility == null)
+                return NotFound();
+
+            ViewData["Title"] = "Chi Tiết Tiện Ích Phòng";
+            return View(roomFacility);
+        }
+
+        // POST: /RoomFacility/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var response = await _apiHelper.DeleteAsync($"/api/roomfacility/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Xóa tiện ích phòng thành công!";
+            }
+            else
+            {
+                TempData["Error"] = "Có lỗi xảy ra khi xóa tiện ích phòng!";
+            }
+            
+            return RedirectToAction(nameof(Manage));
         }
     }
 } 

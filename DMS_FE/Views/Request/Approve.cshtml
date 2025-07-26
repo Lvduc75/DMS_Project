@@ -1,0 +1,107 @@
+@model DMS_FE.Models.RequestModel
+@{
+    ViewData["Title"] = "Approve Request";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Approve Request</h4>
+                    <div class="card-tools">
+                        <a href="@Url.Action("Manage", "Request")" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Requests
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle"></i> Request Information</h6>
+                                <p class="mb-0">Please review the request details below before making your decision.</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="font-weight-bold">Request ID:</label>
+                                <p class="form-control-static">@Model.Id</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="font-weight-bold">Student:</label>
+                                <p class="form-control-static">@(Model.Student?.Name ?? "N/A")</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="font-weight-bold">Type:</label>
+                                <p class="form-control-static">@Model.Type</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="font-weight-bold">Description:</label>
+                                <div class="form-control-static" style="white-space: pre-wrap; background-color: #f8f9fa; padding: 10px; border-radius: 5px;">@Model.Description</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="font-weight-bold">Created At:</label>
+                                <p class="form-control-static">@Model.CreatedAt.ToString("MM/dd/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title">Decision</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form method="post" action="@Url.Action("Approve", "Request", new { id = Model.Id })">
+                                        <input type="hidden" name="managerId" value="1" /> <!-- This should be the actual manager ID -->
+                                        
+                                        <div class="form-group">
+                                            <label class="font-weight-bold">Action:</label>
+                                            <div class="btn-group-vertical w-100">
+                                                <button type="submit" name="status" value="Approved" class="btn btn-success btn-lg mb-2">
+                                                    <i class="fas fa-check"></i> Approve Request
+                                                </button>
+                                                <button type="submit" name="status" value="Rejected" class="btn btn-danger btn-lg">
+                                                    <i class="fas fa-times"></i> Reject Request
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h6 class="card-title">Current Status</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        @switch (Model.Status?.ToLower())
+                                        {
+                                            case "pending":
+                                                <span class="badge badge-warning badge-lg">Pending</span>
+                                                break;
+                                            case "approved":
+                                                <span class="badge badge-success badge-lg">Approved</span>
+                                                break;
+                                            case "rejected":
+                                                <span class="badge badge-danger badge-lg">Rejected</span>
+                                                break;
+                                            default:
+                                                <span class="badge badge-secondary badge-lg">@Model.Status</span>
+                                                break;
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

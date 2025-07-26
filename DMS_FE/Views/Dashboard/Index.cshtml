@@ -1,3 +1,4 @@
+@model DMS_FE.Models.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -23,15 +24,15 @@
         <div class="col-md-3 mb-4">
             <div class="card text-white bg-primary">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="card-title">Tổng số phòng</h5>
-                            <h3 class="mb-0">150</h3>
+                                            <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Tổng số phòng</h5>
+                                <h3 class="mb-0">@Model.TotalRooms</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-house-door fs-1"></i>
+                            </div>
                         </div>
-                        <div class="align-self-center">
-                            <i class="bi bi-house-door fs-1"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -39,15 +40,15 @@
         <div class="col-md-3 mb-4">
             <div class="card text-white bg-success">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="card-title">Sinh viên</h5>
-                            <h3 class="mb-0">280</h3>
+                                            <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Sinh viên</h5>
+                                <h3 class="mb-0">@Model.TotalStudents</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-people fs-1"></i>
+                            </div>
                         </div>
-                        <div class="align-self-center">
-                            <i class="bi bi-people fs-1"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -55,15 +56,15 @@
         <div class="col-md-3 mb-4">
             <div class="card text-white bg-warning">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="card-title">Yêu cầu mới</h5>
-                            <h3 class="mb-0">12</h3>
+                                            <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Yêu cầu mới</h5>
+                                <h3 class="mb-0">@Model.NewRequests</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-clipboard-check fs-1"></i>
+                            </div>
                         </div>
-                        <div class="align-self-center">
-                            <i class="bi bi-clipboard-check fs-1"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -71,15 +72,15 @@
         <div class="col-md-3 mb-4">
             <div class="card text-white bg-info">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="card-title">Doanh thu tháng</h5>
-                            <h3 class="mb-0">150M</h3>
+                                            <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Doanh thu tháng</h5>
+                                <h3 class="mb-0">@(Model.MonthlyRevenue / 1000000)M</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="bi bi-currency-dollar fs-1"></i>
+                            </div>
                         </div>
-                        <div class="align-self-center">
-                            <i class="bi bi-currency-dollar fs-1"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

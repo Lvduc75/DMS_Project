@@ -11,9 +11,9 @@ public partial class UtilityReading
 
     public DateOnly ReadingMonth { get; set; }
 
-    public double Electric { get; set; }
+    public decimal Electric { get; set; }
 
-    public double Water { get; set; }
+    public decimal Water { get; set; }
 
     public DateTime ImportedAt { get; set; }
 

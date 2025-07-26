@@ -8,5 +8,7 @@ namespace DMS_FE.Models
         public string Phone { get; set; }
         public string Password { get; set; }
         public string Role { get; set; }
+        public string? CurrentRoom { get; set; }
+        public string? DormitoryName { get; set; }
     }
 } 

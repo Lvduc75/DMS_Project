@@ -1,0 +1,62 @@
+@model DMS_FE.Models.RequestCreateViewModel
+@{
+    ViewData["Title"] = "Create New Request";
+    Layout = "_StudentLayout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Create New Request</h4>
+                    <div class="card-tools">
+                        <a href="@Url.Action("MyRequests", "Request", new { studentId = Model.StudentId > 0 ? Model.StudentId : 1 })" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to My Requests
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <input type="hidden" asp-for="StudentId" value="@(Model.StudentId > 0 ? Model.StudentId : 1)" />
+                        
+                        <div class="form-group">
+                            <label asp-for="Type" class="control-label"></label>
+                            <select asp-for="Type" class="form-control" required>
+                                <option value="">-- Select Request Type --</option>
+                                <option value="Maintenance">Maintenance Request</option>
+                                <option value="Facility">Facility Request</option>
+                                <option value="Room Change">Room Change Request</option>
+                                <option value="Complaint">Complaint</option>
+                                <option value="General">General Inquiry</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="5" placeholder="Please provide detailed description of your request..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Request
+                            </button>
+                            <a href="@Url.Action("MyRequests", "Request", new { studentId = Model.StudentId > 0 ? Model.StudentId : 1 })" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

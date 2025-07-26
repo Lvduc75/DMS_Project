@@ -4,11 +4,11 @@
     var userRole = Context.Session.GetString("UserRole") ?? "Manager";
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] - Dormitory Management System</title>
+    <title>@ViewData["Title"] - Hệ Thống Quản Lý Ký Túc Xá</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
@@ -69,93 +69,141 @@
     <div class="sidebar d-flex flex-column p-3">
         <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
             <i class="bi bi-building fs-3 me-2"></i>
-            <span class="fs-5 fw-bold">StuDorm Admin</span>
+            <span class="fs-5 fw-bold">Quản Lý Ký Túc Xá</span>
         </a>
         <hr />
         <ul class="nav nav-pills flex-column mb-auto">
-            <li class="nav-item"><a href="/" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house"></i> Dashboard</a></li>
-            <!-- Dormitory & Room Management -->
+            <li class="nav-item"><a href="/" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"><i class="bi bi-house"></i> Trang Chủ</a></li>
+            
+            <!-- Dashboard -->
+            <li class="nav-item"><a href="/Dashboard" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+            
+            <!-- Quản Lý Ký Túc Xá & Phòng -->
             <li>
                 <a class="nav-link" data-bs-toggle="collapse" href="#collapseDorm" role="button" aria-expanded="false" aria-controls="collapseDorm">
-                    <i class="bi bi-building"></i> Dormitory & Room Management <i class="bi bi-chevron-down float-end"></i>
+                    <i class="bi bi-building"></i> Quản Lý Ký Túc Xá & Phòng <i class="bi bi-chevron-down float-end"></i>
                 </a>
                 <div class="collapse" id="collapseDorm">
                     <ul class="nav flex-column ms-2">
-                        <li><a href="/Dormitory/Manage" class="nav-link">Dormitory Management</a></li>
-                        <li><a href="/Room/Manage" class="nav-link">Room Management</a></li>
-                        <li><a href="/DormFacility/Manage" class="nav-link">Dorm Facility Management</a></li>
-                        <li><a href="/RoomFacility/Manage" class="nav-link">Room Facility Management</a></li>
+                        <li><a href="/Dormitory/Manage" class="nav-link">Quản Lý Ký Túc Xá</a></li>
+                        <li><a href="/Room/Manage" class="nav-link">Quản Lý Phòng</a></li>
+                        <li><a href="/DormFacility/Manage" class="nav-link">Quản Lý Tiện Ích KTX</a></li>
+                        <li><a href="/RoomFacility/Manage" class="nav-link">Quản Lý Tiện Ích Phòng</a></li>
+                        <li><a href="/Facility/Manage" class="nav-link">Quản Lý Tiện Ích Chung</a></li>
                     </ul>
                 </div>
             </li>
-            <!-- Student Management -->
+            
+            <!-- Quản Lý Sinh Viên -->
             <li>
                 <a class="nav-link" data-bs-toggle="collapse" href="#collapseStudent" role="button" aria-expanded="false" aria-controls="collapseStudent">
-                    <i class="bi bi-person"></i> Student Management <i class="bi bi-chevron-down float-end"></i>
+                    <i class="bi bi-person"></i> Quản Lý Sinh Viên <i class="bi bi-chevron-down float-end"></i>
                 </a>
                 <div class="collapse" id="collapseStudent">
                     <ul class="nav flex-column ms-2">
-                        <li><a href="/Student/Manage" class="nav-link">Student List</a></li>
-                        <li><a href="/Student/RoomHistory" class="nav-link">Room Assignment History</a></li>
-                        <li><a href="/Student/Profile" class="nav-link">Student Profile</a></li>
-                        <li><a href="/Student/Fees" class="nav-link">Personal Fees & Transactions</a></li>
-                        <li><a href="/Student/Requests" class="nav-link">Personal Requests</a></li>
+                        <li><a href="/Student/Manage" class="nav-link">Danh Sách Sinh Viên</a></li>
+                        <li><a href="/Student/RoomHistory" class="nav-link">Lịch Sử Phân Phòng</a></li>
+                        <li><a href="/Student/Profile" class="nav-link">Hồ Sơ Sinh Viên</a></li>
+                        <li><a href="/Student/Fees" class="nav-link">Phí & Giao Dịch Cá Nhân</a></li>
+                        <li><a href="/Student/Requests" class="nav-link">Yêu Cầu Cá Nhân</a></li>
                     </ul>
                 </div>
             </li>
-            <!-- Fee & Transaction Management -->
+            
+            <!-- Quản Lý Phí & Giao Dịch -->
             <li>
                 <a class="nav-link" data-bs-toggle="collapse" href="#collapseFee" role="button" aria-expanded="false" aria-controls="collapseFee">
-                    <i class="bi bi-cash-coin"></i> Fee & Transaction Management <i class="bi bi-chevron-down float-end"></i>
+                    <i class="bi bi-cash-coin"></i> Quản Lý Phí & Giao Dịch <i class="bi bi-chevron-down float-end"></i>
                 </a>
                 <div class="collapse" id="collapseFee">
                     <ul class="nav flex-column ms-2">
-                        <li><a href="/Fee/Manage" class="nav-link">Fee Management</a></li>
-                        <li><a href="/Transaction/Manage" class="nav-link">Transaction Management</a></li>
-                        <li><a href="/Fee/Tracking" class="nav-link">Payment Tracking</a></li>
+                        <li><a href="/Fee/Manage" class="nav-link">Quản Lý Phí</a></li>
+                        <li><a href="/Transaction/Manage" class="nav-link">Quản Lý Giao Dịch</a></li>
+                        <li><a href="/Fee/Tracking" class="nav-link">Theo Dõi Thanh Toán</a></li>
+                        <li><a href="/Fee/Overdue" class="nav-link">Phí Quá Hạn</a></li>
+                        <li><a href="/Transaction/Summary" class="nav-link">Tổng Kết Giao Dịch</a></li>
                     </ul>
                 </div>
             </li>
-            <!-- Request Management -->
+            
+            <!-- Quản Lý Tiện ích -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseUtility" role="button" aria-expanded="false" aria-controls="collapseUtility">
+                    <i class="bi bi-lightning-charge"></i> Quản Lý Tiện ích <i class="bi bi-chevron-down float-end"></i>
+                </a>
+                <div class="collapse" id="collapseUtility">
+                    <ul class="nav flex-column ms-2">
+                        <li><a href="/Utility/Manage" class="nav-link">Quản Lý Chỉ Số</a></li>
+                        <li><a href="/Utility/Bill" class="nav-link">Tính Hóa Đơn</a></li>
+                        <li><a href="/Utility/History" class="nav-link">Lịch Sử Tiêu Thụ</a></li>
+                        <li><a href="/Utility/Monthly" class="nav-link">Báo Cáo Tháng</a></li>
+                    </ul>
+                </div>
+            </li>
+            
+            <!-- Quản Lý Yêu Cầu -->
             <li>
                 <a class="nav-link" data-bs-toggle="collapse" href="#collapseRequest" role="button" aria-expanded="false" aria-controls="collapseRequest">
-                    <i class="bi bi-envelope"></i> Request Management <i class="bi bi-chevron-down float-end"></i>
+                    <i class="bi bi-envelope"></i> Quản Lý Yêu Cầu <i class="bi bi-chevron-down float-end"></i>
                 </a>
                 <div class="collapse" id="collapseRequest">
                     <ul class="nav flex-column ms-2">
-                        <li><a href="/Request/Manage" class="nav-link">Request List</a></li>
-                        <li><a href="/Request/Repair" class="nav-link">Repair Requests</a></li>
-                        <li><a href="/Request/Violation" class="nav-link">Violation Explanations</a></li>
-                        <li><a href="/Request/Leave" class="nav-link">Temporary Leave Requests</a></li>
-                        <li><a href="/Request/AutoRemind" class="nav-link">Auto Payment Reminders</a></li>
+                        <li><a href="/Request/Manage" class="nav-link">Danh Sách Yêu Cầu</a></li>
+                        <li><a href="/Request/Repair" class="nav-link">Yêu Cầu Sửa Chữa</a></li>
+                        <li><a href="/Request/Violation" class="nav-link">Giải Thích Vi Phạm</a></li>
+                        <li><a href="/Request/Leave" class="nav-link">Yêu Cầu Nghỉ Tạm</a></li>
+                        <li><a href="/Request/AutoRemind" class="nav-link">Nhắc Nhở Thanh Toán Tự Động</a></li>
                     </ul>
                 </div>
             </li>
-            <!-- News & Announcements -->
+            
+            <!-- Tin Tức & Thông Báo -->
             <li>
                 <a class="nav-link" data-bs-toggle="collapse" href="#collapseNews" role="button" aria-expanded="false" aria-controls="collapseNews">
-                    <i class="bi bi-megaphone"></i> News & Announcements <i class="bi bi-chevron-down float-end"></i>
+                    <i class="bi bi-megaphone"></i> Tin Tức & Thông Báo <i class="bi bi-chevron-down float-end"></i>
                 </a>
                 <div class="collapse" id="collapseNews">
                     <ul class="nav flex-column ms-2">
-                        <li><a href="/News/Post" class="nav-link">Post News/Announcements</a></li>
-                        <li><a href="/News/ByDormitory" class="nav-link">News by Dormitory</a></li>
-                        <li><a href="/News/Latest" class="nav-link">Latest News</a></li>
+                        <li><a href="/News/Post" class="nav-link">Đăng Tin/Thông Báo</a></li>
+                        <li><a href="/News/ByDormitory" class="nav-link">Tin Theo Ký Túc Xá</a></li>
+                        <li><a href="/News/Latest" class="nav-link">Tin Mới Nhất</a></li>
                     </ul>
                 </div>
             </li>
-            <!-- User & Role Management -->
+            
+            <!-- Quản Lý Người Dùng & Vai Trò -->
             <li>
                 <a class="nav-link" data-bs-toggle="collapse" href="#collapseUser" role="button" aria-expanded="false" aria-controls="collapseUser">
-                    <i class="bi bi-people"></i> User & Role Management <i class="bi bi-chevron-down float-end"></i>
+                    <i class="bi bi-people"></i> Quản Lý Người Dùng & Vai Trò <i class="bi bi-chevron-down float-end"></i>
                 </a>
                 <div class="collapse" id="collapseUser">
                     <ul class="nav flex-column ms-2">
-                        <li><a href="/User/Manage" class="nav-link">User Management</a></li>
-                        <li><a href="/User/Role" class="nav-link">Role Management</a></li>
-                        <li><a href="/User/Profile" class="nav-link">Profile</a></li>
+                        <li><a href="/User/Manage" class="nav-link">Quản Lý Người Dùng</a></li>
+                        <li><a href="/User/Role" class="nav-link">Quản Lý Vai Trò</a></li>
+                        <li><a href="/User/Profile" class="nav-link">Hồ Sơ</a></li>
+                        <li><a href="/User/Create" class="nav-link">Tạo Người Dùng Mới</a></li>
                     </ul>
                 </div>
+            </li>
+            
+            <!-- Cấu hình Hệ thống -->
+            <li>
+                <a class="nav-link" data-bs-toggle="collapse" href="#collapseConfig" role="button" aria-expanded="false" aria-controls="collapseConfig">
+                    <i class="bi bi-gear"></i> Cấu hình Hệ thống <i class="bi bi-chevron-down float-end"></i>
+                </a>
+                <div class="collapse" id="collapseConfig">
+                    <ul class="nav flex-column ms-2">
+                        <li><a href="/ConfigPrice/Manage" class="nav-link">Cấu hình Giá</a></li>
+                        <li><a href="/ConfigPrice/Initialize" class="nav-link">Khởi tạo Giá Mặc định</a></li>
+                    </ul>
+                </div>
+            </li>
+            
+            <!-- Quản Lý Tiện Ích Phòng -->
+            <li>
+                <a class="nav-link" href="/RoomFacility/Manage">
+                    <i class="bi bi-tools"></i> Quản Lý Tiện Ích Phòng
+                </a>
             </li>
         </ul>
         <hr />
@@ -168,13 +216,14 @@
                 </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                <li><a class="dropdown-item" href="/User/Profile">Profile</a></li>
-                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><a class="dropdown-item" href="/Account/Profile"><i class="bi bi-person-circle me-2"></i>Hồ Sơ Tài Khoản</a></li>
+                <li><a class="dropdown-item" href="/User/Profile"><i class="bi bi-person me-2"></i>Hồ Sơ Người Dùng</a></li>
+                <li><a class="dropdown-item" href="/Account/ChangePassword"><i class="bi bi-key me-2"></i>Đổi Mật Khẩu</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <form method="post" action="/Account/Logout" style="display: inline;">
                         <button type="submit" class="dropdown-item">
-                            <i class="bi bi-box-arrow-right"></i> Sign out
+                            <i class="bi bi-box-arrow-right me-2"></i> Đăng Xuất
                         </button>
                     </form>
                 </li>
@@ -185,12 +234,12 @@
         <div class="header mb-4">
             <div class="fs-4 fw-bold">@ViewData["Title"]</div>
             <div>
-                <span class="badge bg-primary">Dormitory Management System</span>
+                <span class="badge bg-primary">Hệ Thống Quản Lý Ký Túc Xá</span>
             </div>
         </div>
         @RenderBody()
         <div class="footer mt-4">
-            &copy; @DateTime.Now.Year Dormitory Management System
+            &copy; @DateTime.Now.Year Hệ Thống Quản Lý Ký Túc Xá
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,0 +1,156 @@
+@model DMS_FE.Models.RequestModel
+@{
+    ViewData["Title"] = "Request Details";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Request Details</h4>
+                    <div class="card-tools">
+                        <a href="@Url.Action("Manage", "Request")" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Requests
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Request ID:</label>
+                                <p class="form-control-static">@Model.Id</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="font-weight-bold">Type:</label>
+                                <p class="form-control-static">@Model.Type</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="font-weight-bold">Description:</label>
+                                <div class="form-control-static" style="white-space: pre-wrap;">@Model.Description</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="font-weight-bold">Status:</label>
+                                <p class="form-control-static">
+                                    @switch (Model.Status?.ToLower())
+                                    {
+                                        case "pending":
+                                            <span class="badge badge-warning">Pending</span>
+                                            break;
+                                        case "approved":
+                                            <span class="badge badge-success">Approved</span>
+                                            break;
+                                        case "rejected":
+                                            <span class="badge badge-danger">Rejected</span>
+                                            break;
+                                        default:
+                                            <span class="badge badge-secondary">@Model.Status</span>
+                                            break;
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title">Request Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Student:</label>
+                                        <p class="form-control-static">@(Model.Student?.Name ?? "N/A")</p>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Manager:</label>
+                                        <p class="form-control-static">@(Model.Manager?.Name ?? "Not Assigned")</p>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Created At:</label>
+                                        <p class="form-control-static">@Model.CreatedAt.ToString("MM/dd/yyyy HH:mm")</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if (Model.Status?.ToLower() == "pending")
+                            {
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h6 class="card-title">Actions</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="btn-group-vertical w-100">
+                                            <a href="@Url.Action("Approve", "Request", new { id = Model.Id })" class="btn btn-success btn-sm mb-2">
+                                                <i class="fas fa-check"></i> Approve Request
+                                            </a>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="rejectRequest(@Model.Id)">
+                                                <i class="fas fa-times"></i> Reject Request
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Request Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reject Request</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form id="rejectForm" method="post">
+                <div class="modal-body">
+                    <p>Are you sure you want to reject this request?</p>
+                    <input type="hidden" id="requestId" name="id" />
+                    <input type="hidden" name="status" value="Rejected" />
+                    <input type="hidden" name="managerId" value="1" /> <!-- This should be the actual manager ID -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function rejectRequest(requestId) {
+            $('#requestId').val(requestId);
+            $('#rejectModal').modal('show');
+        }
+
+        $('#rejectForm').on('submit', function(e) {
+            e.preventDefault();
+            var formData = $(this).serialize();
+            var url = '@Url.Action("Approve", "Request")' + '/' + $('#requestId').val();
+            
+            $.post(url, formData)
+                .done(function() {
+                    $('#rejectModal').modal('hide');
+                    location.reload();
+                })
+                .fail(function() {
+                    alert('Failed to reject request. Please try again.');
+                });
+        });
+    </script>
+} 

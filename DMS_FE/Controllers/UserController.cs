@@ -13,9 +13,9 @@ namespace DMS_FE.Controllers
     public class UserController : Controller
     {
         private readonly ApiHelper _apiHelper;
-        public UserController(IConfiguration configuration)
+        public UserController(ApiHelper apiHelper)
         {
-            _apiHelper = new ApiHelper(configuration);
+            _apiHelper = apiHelper;
         }
 
         // Danh sách user
@@ -42,10 +42,26 @@ namespace DMS_FE.Controllers
         public async Task<IActionResult> Create(UserModel model)
         {
             if (!ModelState.IsValid) return View(model);
-            var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
-            var response = await _apiHelper.PostAsync("/api/user", content);
+            
+            // Tạo DTO cho API mới
+            var createUserDto = new
+            {
+                name = model.Name,
+                email = model.Email,
+                password = model.Password,
+                role = model.Role ?? "Student",
+                phone = model.Phone
+            };
+            
+            var content = new StringContent(JsonConvert.SerializeObject(createUserDto), Encoding.UTF8, "application/json");
+            var response = await _apiHelper.PostAsync("/api/Auth/create-user", content);
+            
             if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Tạo người dùng thành công!";
                 return RedirectToAction("Index");
+            }
+            
             var error = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError(string.Empty, error);
             return View(model);

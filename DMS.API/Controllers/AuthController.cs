@@ -286,5 +286,73 @@ namespace DMS.API.Controllers
                 return BadRequest($"Lỗi: {ex.Message}");
             }
         }
+
+        [HttpGet("profile/{id}")]
+        public IActionResult GetProfile(int id)
+        {
+            try
+            {
+                var user = _context.Users.FirstOrDefault(u => u.Id == id);
+                if (user == null)
+                {
+                    return NotFound("Không tìm thấy user");
+                }
+
+                var profile = new ProfileDTO
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    Role = user.Role
+                };
+
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Lỗi: {ex.Message}");
+            }
+        }
+
+        [HttpPut("profile/{id}")]
+        public IActionResult UpdateProfile(int id, [FromBody] UpdateProfileDTO request)
+        {
+            try
+            {
+                var user = _context.Users.FirstOrDefault(u => u.Id == id);
+                if (user == null)
+                {
+                    return NotFound("Không tìm thấy user");
+                }
+
+                // Validate input
+                if (string.IsNullOrEmpty(request.Name))
+                {
+                    return BadRequest("Tên không được để trống");
+                }
+
+                // Update user information
+                user.Name = request.Name;
+                user.Phone = request.Phone;
+
+                _context.SaveChanges();
+
+                var result = new ProfileDTO
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    Role = user.Role
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Lỗi: {ex.Message}");
+            }
+        }
     }
 } 

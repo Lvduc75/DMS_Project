@@ -1,23 +1,226 @@
 @{
-    ViewData["Title"] = "Student Dashboard";
-    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+    ViewData["Title"] = "Trang Chủ Sinh Viên";
+    Layout = "_StudentLayout";
+    var userName = Context.Session.GetString("UserName") ?? "Sinh Viên";
 }
-<div class="container">
-    <div class="row justify-content-center">
+
+<div class="welcome-card">
+    <div class="row align-items-center">
         <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Welcome, Student!</h4>
+            <h2 class="mb-2">Chào mừng, @userName!</h2>
+            <p class="mb-0">Hệ thống quản lý ký túc xá sinh viên - Nơi bạn có thể xem thông tin về ký túc xá và phòng ở của mình.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <i class="bi bi-house-heart" style="font-size: 4rem; opacity: 0.7;"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Thông Tin Ký Túc Xá -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                        <i class="bi bi-building text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-1">Ký Túc Xá</h5>
+                        <p class="text-muted mb-0">Thông tin ký túc xá</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p class="lead">This is your student dashboard.</p>
-                    <ul>
-                        <li>You can <b>create a new request</b> for support, repair, or leave by clicking <b>Create Request</b> in the sidebar.</li>
-                        <li>View your <b>request history</b> in <b>My Requests</b>.</li>
-                        <li>Check and update your <b>personal information</b> in <b>My Info</b>.</li>
-                    </ul>
-                    <div class="alert alert-info mt-3">
-                        If you need help, please contact the dormitory manager.
+                <p class="card-text">Xem thông tin chi tiết về ký túc xá, tiện ích và các quy định.</p>
+                <a href="/Student/Dormitories" class="btn btn-primary">
+                    <i class="bi bi-arrow-right me-2"></i>Xem Ký Túc Xá
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông Tin Phòng -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success bg-opacity-10 p-3 rounded me-3">
+                        <i class="bi bi-door-open text-success fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-1">Phòng Ở</h5>
+                        <p class="text-muted mb-0">Thông tin phòng của bạn</p>
+                    </div>
+                </div>
+                <p class="card-text">Xem thông tin phòng được phân, tiện ích phòng và bạn cùng phòng.</p>
+                <a href="/Student/Rooms" class="btn btn-success">
+                    <i class="bi bi-arrow-right me-2"></i>Xem Phòng
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phí & Thanh Toán -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded me-3">
+                        <i class="bi bi-cash-coin text-warning fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-1">Phí & Thanh Toán</h5>
+                        <p class="text-muted mb-0">Quản lý phí ký túc xá</p>
+                    </div>
+                </div>
+                <p class="card-text">Xem phí cần thanh toán, lịch sử thanh toán và phí quá hạn.</p>
+                <a href="/Student/Fees" class="btn btn-warning">
+                    <i class="bi bi-arrow-right me-2"></i>Xem Phí
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tiện Ích & Hóa Đơn -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-info bg-opacity-10 p-3 rounded me-3">
+                        <i class="bi bi-lightning-charge text-info fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-1">Tiện Ích & Hóa Đơn</h5>
+                        <p class="text-muted mb-0">Quản lý tiện ích</p>
+                    </div>
+                </div>
+                <p class="card-text">Xem chỉ số tiện ích, hóa đơn và lịch sử tiêu thụ.</p>
+                <a href="/Student/UtilityReadings" class="btn btn-info">
+                    <i class="bi bi-arrow-right me-2"></i>Xem Tiện Ích
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yêu Cầu & Hỗ Trợ -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-secondary bg-opacity-10 p-3 rounded me-3">
+                        <i class="bi bi-envelope text-secondary fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-1">Yêu Cầu & Hỗ Trợ</h5>
+                        <p class="text-muted mb-0">Gửi yêu cầu hỗ trợ</p>
+                    </div>
+                </div>
+                <p class="card-text">Tạo yêu cầu sửa chữa, nghỉ tạm hoặc các yêu cầu khác.</p>
+                <a href="/Student/Requests" class="btn btn-secondary">
+                    <i class="bi bi-arrow-right me-2"></i>Xem Yêu Cầu
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tin Tức & Thông Báo -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-danger bg-opacity-10 p-3 rounded me-3">
+                        <i class="bi bi-megaphone text-danger fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-1">Tin Tức & Thông Báo</h5>
+                        <p class="text-muted mb-0">Cập nhật thông tin mới</p>
+                    </div>
+                </div>
+                <p class="card-text">Xem tin tức, thông báo và các sự kiện mới nhất.</p>
+                <a href="/Student/News" class="btn btn-danger">
+                    <i class="bi bi-arrow-right me-2"></i>Xem Tin Tức
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Thống Kê Nhanh -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Thống Kê Nhanh
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
+                                <i class="bi bi-building text-primary fs-3"></i>
+                            </div>
+                            <h4 class="mb-1">3</h4>
+                            <p class="text-muted mb-0">Ký Túc Xá</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
+                                <i class="bi bi-door-open text-success fs-3"></i>
+                            </div>
+                            <h4 class="mb-1">150</h4>
+                            <p class="text-muted mb-0">Phòng</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="bg-warning bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
+                                <i class="bi bi-person text-warning fs-3"></i>
+                            </div>
+                            <h4 class="mb-1">450</h4>
+                            <p class="text-muted mb-0">Sinh Viên</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="bg-info bg-opacity-10 p-3 rounded-circle d-inline-block mb-2">
+                                <i class="bi bi-tools text-info fs-3"></i>
+                            </div>
+                            <h4 class="mb-1">25</h4>
+                            <p class="text-muted mb-0">Tiện Ích</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hướng Dẫn Sử Dụng -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-question-circle me-2"></i>Hướng Dẫn Sử Dụng
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-1-circle text-primary me-2"></i>Xem Thông Tin Ký Túc Xá</h6>
+                        <p class="text-muted">Truy cập vào mục "Ký Túc Xá" để xem thông tin chi tiết về các ký túc xá, tiện ích và quy định.</p>
+                        
+                        <h6><i class="bi bi-2-circle text-success me-2"></i>Xem Thông Tin Phòng</h6>
+                        <p class="text-muted">Vào mục "Phòng Ở" để xem thông tin phòng được phân, bạn cùng phòng và tiện ích phòng.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-3-circle text-warning me-2"></i>Quản Lý Phí</h6>
+                        <p class="text-muted">Kiểm tra phí cần thanh toán, lịch sử thanh toán và phí quá hạn trong mục "Phí & Thanh Toán".</p>
+                        
+                        <h6><i class="bi bi-4-circle text-info me-2"></i>Gửi Yêu Cầu</h6>
+                        <p class="text-muted">Tạo yêu cầu sửa chữa, nghỉ tạm hoặc các yêu cầu khác trong mục "Yêu Cầu & Hỗ Trợ".</p>
                     </div>
                 </div>
             </div>

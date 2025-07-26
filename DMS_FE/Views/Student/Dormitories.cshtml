@@ -1,0 +1,219 @@
+@model List<DormitorySimpleViewModel>
+@{
+    ViewData["Title"] = "Ký Túc Xá";
+    Layout = "_StudentLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-building me-2"></i>Ký Túc Xá
+        </h2>
+        <p class="text-muted mb-0">Xem thông tin chi tiết về các ký túc xá và tiện ích</p>
+    </div>
+    <div>
+        <span class="badge bg-primary fs-6">@Model?.Count ký túc xá</span>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        @foreach (var dormitory in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm hover-shadow">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="bi bi-building me-2"></i>@dormitory.Name
+                            </h5>
+                            <span class="badge bg-light text-primary">Hoạt động</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-geo-alt me-2"></i>Thông tin địa chỉ sẽ được cập nhật
+                            </p>
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-telephone me-2"></i>Thông tin liên hệ sẽ được cập nhật
+                            </p>
+                        </div>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded">
+                                    <h6 class="mb-1 text-primary">@dormitory.TotalRooms</h6>
+                                    <small class="text-muted">Phòng</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="bg-success bg-opacity-10 p-2 rounded">
+                                    <h6 class="mb-1 text-success">@dormitory.AvailableRooms</h6>
+                                    <small class="text-muted">Còn trống</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="bg-warning bg-opacity-10 p-2 rounded">
+                                    <h6 class="mb-1 text-warning">@dormitory.OccupiedRooms</h6>
+                                    <small class="text-muted">Đã thuê</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6 class="mb-2">
+                                <i class="bi bi-tools me-2"></i>Tiện Ích Chung
+                            </h6>
+                            <div class="d-flex flex-wrap gap-1">
+                                @if (dormitory.Facilities != null && dormitory.Facilities.Any())
+                                {
+                                    foreach (var facility in dormitory.Facilities.Take(3))
+                                    {
+                                        <span class="badge bg-secondary">@facility</span>
+                                    }
+                                    @if (dormitory.Facilities.Count > 3)
+                                    {
+                                        <span class="badge bg-secondary">+@(dormitory.Facilities.Count - 3) khác</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có thông tin</span>
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#dormitoryModal@(dormitory.Id)">
+                                <i class="bi bi-eye me-2"></i>Xem Chi Tiết
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Chi Tiết Ký Túc Xá -->
+            <div class="modal fade" id="dormitoryModal@(dormitory.Id)" tabindex="-1" aria-labelledby="dormitoryModalLabel@(dormitory.Id)" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="dormitoryModalLabel@(dormitory.Id)">
+                                <i class="bi bi-building me-2"></i>@dormitory.Name
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-info-circle me-2"></i>Thông Tin Cơ Bản
+                                    </h6>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <strong>Địa chỉ:</strong><br>
+                                            <i class="bi bi-geo-alt me-2"></i>Thông tin địa chỉ sẽ được cập nhật
+                                        </li>
+                                        <li class="mb-2">
+                                            <strong>Số điện thoại:</strong><br>
+                                            <i class="bi bi-telephone me-2"></i>Thông tin liên hệ sẽ được cập nhật
+                                        </li>
+                                        <li class="mb-2">
+                                            <strong>Trạng thái:</strong><br>
+                                            <span class="badge bg-success">Hoạt động</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-graph-up me-2"></i>Thống Kê Phòng
+                                    </h6>
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                                <h4 class="mb-1 text-primary">@dormitory.TotalRooms</h4>
+                                                <small class="text-muted">Tổng phòng</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="bg-success bg-opacity-10 p-3 rounded">
+                                                <h4 class="mb-1 text-success">@dormitory.AvailableRooms</h4>
+                                                <small class="text-muted">Còn trống</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                                <h4 class="mb-1 text-warning">@dormitory.OccupiedRooms</h4>
+                                                <small class="text-muted">Đã thuê</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="mt-4">
+                                <h6 class="mb-3">
+                                    <i class="bi bi-tools me-2"></i>Tiện Ích Chung
+                                </h6>
+                                @if (dormitory.Facilities != null && dormitory.Facilities.Any())
+                                {
+                                    <div class="row">
+                                        @foreach (var facility in dormitory.Facilities)
+                                        {
+                                            <div class="col-md-6 mb-2">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                                    <span>@facility</span>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted">Chưa có thông tin tiện ích</p>
+                                }
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="mt-4">
+                                <h6 class="mb-3">
+                                    <i class="bi bi-door-open me-2"></i>Xem Phòng Trong Ký Túc Xá
+                                </h6>
+                                <p class="text-muted">Bạn có thể xem danh sách các phòng trong ký túc xá này.</p>
+                                <a href="/Student/Rooms?dormitoryId=@dormitory.Id" class="btn btn-primary">
+                                    <i class="bi bi-arrow-right me-2"></i>Xem Phòng
+                                </a>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <div class="bg-light rounded-circle d-inline-block p-4 mb-3">
+            <i class="bi bi-building text-muted" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="text-muted mb-2">Chưa có ký túc xá nào</h4>
+        <p class="text-muted">Hiện tại chưa có thông tin về ký túc xá trong hệ thống.</p>
+    </div>
+}
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+        transition: all 0.3s ease;
+    }
+</style> 

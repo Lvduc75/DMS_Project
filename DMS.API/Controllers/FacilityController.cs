@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using DMS.Models.Entities;
-using System.Linq;
 
 namespace DMS.API.Controllers
 {
@@ -9,63 +9,47 @@ namespace DMS.API.Controllers
     public class FacilityController : ControllerBase
     {
         private readonly DormManagementContext _context;
+
         public FacilityController(DormManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/Facility
+        // GET: api/facility
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<ActionResult<IEnumerable<object>>> GetFacilities()
         {
-            var facilities = _context.Facilities
-                .Select(f => new {
+            var facilities = await _context.Facilities
+                .OrderBy(f => f.Name)
+                .Select(f => new
+                {
                     f.Id,
                     f.Name,
                     f.UnitPrice
                 })
-                .ToList();
+                .ToListAsync();
             return Ok(facilities);
         }
 
-        // POST: api/Facility
-        [HttpPost]
-        public IActionResult Create([FromBody] Facility facility)
+        // GET: api/facility/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<object>> GetFacility(int id)
         {
-            if (string.IsNullOrWhiteSpace(facility.Name))
-                return BadRequest("Tên thiết bị không được để trống");
-            _context.Facilities.Add(facility);
-            _context.SaveChanges();
+            var facility = await _context.Facilities
+                .Where(f => f.Id == id)
+                .Select(f => new
+                {
+                    f.Id,
+                    f.Name,
+                    f.UnitPrice
+                })
+                .FirstOrDefaultAsync();
+
+            if (facility == null)
+            {
+                return NotFound();
+            }
             return Ok(facility);
-        }
-
-        // PUT: api/Facility/{id}
-        [HttpPut("{id}")]
-        public IActionResult Edit(int id, [FromBody] Facility facility)
-        {
-            var existing = _context.Facilities.FirstOrDefault(f => f.Id == id);
-            if (existing == null) return NotFound();
-            if (string.IsNullOrWhiteSpace(facility.Name))
-                return BadRequest("Tên thiết bị không được để trống");
-            existing.Name = facility.Name;
-            existing.UnitPrice = facility.UnitPrice;
-            _context.SaveChanges();
-            return Ok(existing);
-        }
-
-        // DELETE: api/Facility/{id}
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var facility = _context.Facilities.FirstOrDefault(f => f.Id == id);
-            if (facility == null) return NotFound();
-            var hasDorm = _context.DormFacilities.Any(df => df.FacilityId == id);
-            var hasRoom = _context.RoomFacilities.Any(rf => rf.FacilityId == id);
-            if (hasDorm || hasRoom)
-                return BadRequest("Thiết bị này đang được sử dụng");
-            _context.Facilities.Remove(facility);
-            _context.SaveChanges();
-            return Ok();
         }
     }
 } 

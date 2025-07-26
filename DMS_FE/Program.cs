@@ -1,9 +1,17 @@
+using DMS.Models.Entities;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient();
 builder.Services.AddSession();
+
+// Đăng ký Database Context
+builder.Services.AddDbContext<DormManagementContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 // Đăng ký ApiHelper
 builder.Services.AddSingleton<DMS_FE.Helpers.ApiHelper>();
 

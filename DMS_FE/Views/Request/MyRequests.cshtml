@@ -1,0 +1,95 @@
+@model List<DMS_FE.Models.RequestModel>
+@{
+    ViewData["Title"] = "My Requests";
+    Layout = "_StudentLayout";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">My Requests</h4>
+                    <div class="card-tools">
+                        <a href="@Url.Action("Create", "Request", new { studentId = 1 })" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> New Request
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Created At</th>
+                                        <th>Manager</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var request in Model)
+                                    {
+                                        <tr>
+                                            <td>@request.Id</td>
+                                            <td>@request.Type</td>
+                                            <td>@(request.Description?.Length > 50 ? request.Description.Substring(0, 50) + "..." : request.Description)</td>
+                                            <td>
+                                                @switch (request.Status?.ToLower())
+                                                {
+                                                    case "pending":
+                                                        <span class="badge badge-warning">Pending</span>
+                                                        break;
+                                                    case "approved":
+                                                        <span class="badge badge-success">Approved</span>
+                                                        break;
+                                                    case "rejected":
+                                                        <span class="badge badge-danger">Rejected</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge badge-secondary">@request.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>@request.CreatedAt.ToString("MM/dd/yyyy HH:mm")</td>
+                                            <td>@(request.Manager?.Name ?? "Not Assigned")</td>
+                                            <td>
+                                                <a href="@Url.Action("Details", "Request", new { id = request.Id })" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> View Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No requests found</h5>
+                            <p class="text-muted">You haven't submitted any requests yet.</p>
+                            <a href="@Url.Action("Create", "Request", new { studentId = 1 })" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Your First Request
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

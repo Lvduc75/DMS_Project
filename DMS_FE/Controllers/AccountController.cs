@@ -70,7 +70,7 @@ namespace DMS_FE.Controllers
                     }
                     else if (userInfo.Role == "Student")
                     {
-                        return RedirectToAction("Index", "Student");
+                        return RedirectToAction("Home", "Student");
                     }
                     else
                     {
@@ -97,6 +97,91 @@ namespace DMS_FE.Controllers
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            try
+            {
+                var response = await _apiHelper.GetAsync($"/api/Auth/profile/{userId}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var profile = JsonConvert.DeserializeObject<ProfileViewModel>(responseContent);
+                    return View(profile);
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var profile = new ProfileViewModel { Error = errorContent.Replace("\"", "") };
+                    return View(profile);
+                }
+            }
+            catch (Exception ex)
+            {
+                var profile = new ProfileViewModel { Error = "Lỗi kết nối: " + ex.Message };
+                return View(profile);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Profile(ProfileViewModel model)
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (string.IsNullOrEmpty(model.Name))
+            {
+                model.Error = "Tên không được để trống";
+                return View(model);
+            }
+
+            try
+            {
+                var updateData = new
+                {
+                    Name = model.Name,
+                    Phone = model.Phone
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(updateData),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _apiHelper.PutAsync($"/api/Auth/profile/{userId}", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var updatedProfile = JsonConvert.DeserializeObject<ProfileViewModel>(responseContent);
+                    updatedProfile.Success = "Cập nhật thông tin thành công";
+                    return View(updatedProfile);
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    model.Error = errorContent.Replace("\"", "");
+                    return View(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                model.Error = "Lỗi kết nối: " + ex.Message;
+                return View(model);
+            }
         }
     }
 } 

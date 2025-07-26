@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using DMS.Models.Entities;
-using System.Linq;
 
 namespace DMS.API.Controllers
 {
@@ -9,105 +9,175 @@ namespace DMS.API.Controllers
     public class RoomController : ControllerBase
     {
         private readonly DormManagementContext _context;
+
         public RoomController(DormManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/Room?dormitoryId=1
+        // GET: api/room
         [HttpGet]
-        public IActionResult GetAll(int? dormitoryId, string status = null)
+        public async Task<ActionResult<IEnumerable<object>>> GetRooms([FromQuery] int? dormitoryId = null)
         {
-            var query = _context.Rooms.AsQueryable();
-            if (dormitoryId.HasValue)
-                query = query.Where(r => r.DormitoryId == dormitoryId.Value);
-            if (!string.IsNullOrEmpty(status))
-                query = query.Where(r => r.Status == status);
-            var rooms = query
-                .Select(r => new {
+            var rooms = await _context.Rooms
+                .Include(r => r.Dormitory)
+                .Include(r => r.StudentRooms)
+                .ThenInclude(sr => sr.Student)
+                .Include(r => r.RoomFacilities)
+                .ThenInclude(rf => rf.Facility)
+                .Where(r => !dormitoryId.HasValue || r.DormitoryId == dormitoryId.Value)
+                .Select(r => new
+                {
                     r.Id,
                     r.Code,
                     r.Capacity,
                     r.Status,
                     r.DormitoryId,
-                    DormitoryName = r.Dormitory.Name
+                    // Fields bổ sung cho UI
+                    RoomNumber = r.Code, // Alias cho Code
+                    Occupied = r.StudentRooms.Count(sr => sr.EndDate > DateOnly.FromDateTime(DateTime.Now)),
+                    RoomType = GetRoomType(r.Capacity), // Helper function
+                    Floor = GetFloorFromCode(r.Code), // Helper function
+                    Price = GetRoomPrice(r.Capacity), // Helper function
+                    DormitoryName = r.Dormitory.Name,
+                    Facilities = r.RoomFacilities.Select(rf => rf.Facility.Name).ToList(),
+                    Students = r.StudentRooms
+                        .Where(sr => sr.EndDate > DateOnly.FromDateTime(DateTime.Now))
+                        .Select(sr => new
+                        {
+                            sr.Student.Id,
+                            sr.Student.Name,
+                            StudentId = sr.Student.Email, // Sử dụng email làm StudentId
+                            sr.Student.Email
+                        }).ToList()
                 })
-                .ToList();
+                .ToListAsync();
+
             return Ok(rooms);
         }
 
-        // POST: api/Room
-        [HttpPost]
-        public IActionResult Create([FromBody] Room room)
+        // GET: api/room/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<object>> GetRoom(int id)
         {
-            if (string.IsNullOrWhiteSpace(room.Code) || string.IsNullOrWhiteSpace(room.Status))
-                return BadRequest("Thông tin phòng không hợp lệ");
-            _context.Rooms.Add(room);
-            _context.SaveChanges();
-            return Ok(room);
-        }
+            var room = await _context.Rooms
+                .Include(r => r.Dormitory)
+                .Include(r => r.StudentRooms)
+                .ThenInclude(sr => sr.Student)
+                .Include(r => r.RoomFacilities)
+                .ThenInclude(rf => rf.Facility)
+                .Where(r => r.Id == id)
+                .Select(r => new
+                {
+                    r.Id,
+                    r.Code,
+                    r.Capacity,
+                    r.Status,
+                    r.DormitoryId,
+                    RoomNumber = r.Code,
+                    Occupied = r.StudentRooms.Count(sr => sr.EndDate > DateOnly.FromDateTime(DateTime.Now)),
+                    RoomType = GetRoomType(r.Capacity),
+                    Floor = GetFloorFromCode(r.Code),
+                    Price = GetRoomPrice(r.Capacity),
+                    DormitoryName = r.Dormitory.Name,
+                    Facilities = r.RoomFacilities.Select(rf => rf.Facility.Name).ToList(),
+                    Students = r.StudentRooms
+                        .Where(sr => sr.EndDate > DateOnly.FromDateTime(DateTime.Now))
+                        .Select(sr => new
+                        {
+                            sr.Student.Id,
+                            sr.Student.Name,
+                            StudentId = sr.Student.Email,
+                            sr.Student.Email
+                        }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
-        // PUT: api/Room/{id}
-        [HttpPut("{id}")]
-        public IActionResult Edit(int id, [FromBody] Room room)
-        {
-            var existing = _context.Rooms.FirstOrDefault(r => r.Id == id);
-            if (existing == null) return NotFound();
-            if (string.IsNullOrWhiteSpace(room.Code) || string.IsNullOrWhiteSpace(room.Status))
-                return BadRequest("Thông tin phòng không hợp lệ");
-            existing.Code = room.Code;
-            existing.Capacity = room.Capacity;
-            existing.Status = room.Status;
-            existing.DormitoryId = room.DormitoryId;
-            _context.SaveChanges();
-            return Ok(existing);
-        }
-
-        // PUT: api/Room/{id}/status
-        [HttpPut("{id}/status")]
-        public IActionResult UpdateStatus(int id, [FromBody] string status)
-        {
-            var room = _context.Rooms.FirstOrDefault(r => r.Id == id);
-            if (room == null) return NotFound();
-            room.Status = status;
-            _context.SaveChanges();
-            return Ok(room);
-        }
-
-        // DELETE: api/Room/{id}
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var room = _context.Rooms.FirstOrDefault(r => r.Id == id);
-            if (room == null) return NotFound();
-            var hasStudents = _context.StudentRooms.Any(s => s.RoomId == id);
-            var hasReadings = _context.UtilityReadings.Any(u => u.RoomId == id);
-            if (hasStudents || hasReadings)
-                return BadRequest("Phòng này đang được sử dụng");
-            _context.Rooms.Remove(room);
-            _context.SaveChanges();
-            return Ok();
-        }
-
-        public class StudentAssignRequest { public int StudentId { get; set; } }
-        [HttpPost("{roomId}/assign-student")]
-        public IActionResult AssignStudent(int roomId, [FromBody] StudentAssignRequest req)
-        {
-            var room = _context.Rooms.FirstOrDefault(r => r.Id == roomId);
-            if (room == null) return NotFound();
-            var currentCount = _context.StudentRooms.Count(sr => sr.RoomId == roomId && sr.EndDate == null);
-            if (currentCount >= room.Capacity)
-                return BadRequest("Phòng đã đủ sức chứa");
-            var sr = new StudentRoom
+            if (room == null)
             {
-                StudentId = req.StudentId,
-                RoomId = roomId,
-                StartDate = DateOnly.FromDateTime(DateTime.Now)
+                return NotFound();
+            }
+
+            return Ok(room);
+        }
+
+        // GET: api/room/student/{studentId}
+        [HttpGet("student/{studentId}")]
+        public async Task<ActionResult<object>> GetRoomByStudent(int studentId)
+        {
+            var room = await _context.Rooms
+                .Include(r => r.Dormitory)
+                .Include(r => r.StudentRooms)
+                .ThenInclude(sr => sr.Student)
+                .Include(r => r.RoomFacilities)
+                .ThenInclude(rf => rf.Facility)
+                .Where(r => r.StudentRooms.Any(sr => sr.StudentId == studentId && sr.EndDate > DateOnly.FromDateTime(DateTime.Now)))
+                .Select(r => new
+                {
+                    r.Id,
+                    r.Code,
+                    r.Capacity,
+                    r.Status,
+                    r.DormitoryId,
+                    RoomNumber = r.Code,
+                    Occupied = r.StudentRooms.Count(sr => sr.EndDate > DateOnly.FromDateTime(DateTime.Now)),
+                    RoomType = GetRoomType(r.Capacity),
+                    Floor = GetFloorFromCode(r.Code),
+                    Price = GetRoomPrice(r.Capacity),
+                    DormitoryName = r.Dormitory.Name,
+                    Facilities = r.RoomFacilities.Select(rf => rf.Facility.Name).ToList(),
+                    Students = r.StudentRooms
+                        .Where(sr => sr.EndDate > DateOnly.FromDateTime(DateTime.Now))
+                        .Select(sr => new
+                        {
+                            sr.Student.Id,
+                            sr.Student.Name,
+                            StudentId = sr.Student.Email,
+                            sr.Student.Email
+                        }).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (room == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(room);
+        }
+
+        // Helper methods
+        private static string GetRoomType(int capacity)
+        {
+            return capacity switch
+            {
+                1 => "Single",
+                2 => "Double",
+                3 => "Triple",
+                4 => "Quad",
+                _ => "Multiple"
             };
-            _context.StudentRooms.Add(sr);
-            _context.SaveChanges();
-            // Trả về DTO đơn giản, tránh vòng lặp
-            return Ok(new { sr.Id, sr.StudentId, sr.RoomId, sr.StartDate, sr.EndDate });
+        }
+
+        private static int GetFloorFromCode(string code)
+        {
+            if (code.Length >= 3 && int.TryParse(code.Substring(1, 1), out int floor))
+            {
+                return floor;
+            }
+            return 1; // Default floor
+        }
+
+        private static decimal GetRoomPrice(int capacity)
+        {
+            return capacity switch
+            {
+                1 => 2000000m, // 2 triệu
+                2 => 1500000m, // 1.5 triệu
+                3 => 1200000m, // 1.2 triệu
+                4 => 1000000m, // 1 triệu
+                _ => 800000m   // 800k
+            };
         }
     }
 } 

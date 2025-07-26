@@ -4,3 +4,138 @@ GET {{DMS.API_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+### Test ConfigPrice API
+# Initialize default prices
+POST {{baseUrl}}/api/configprice/initialize
+Content-Type: application/json
+
+###
+
+# Get all price configurations
+GET {{baseUrl}}/api/configprice
+
+###
+
+# Get price by type
+GET {{baseUrl}}/api/configprice/type/Electric
+
+###
+
+### Test Fee API
+# Create a new fee
+POST {{baseUrl}}/api/fee
+Content-Type: application/json
+
+{
+  "studentId": 2,
+  "type": "Room",
+  "amount": 1500000,
+  "status": "unpaid",
+  "dueDate": "2025-02-15"
+}
+
+###
+
+# Get fees by student
+GET {{baseUrl}}/api/fee/student/2
+
+###
+
+# Get fees by month and type
+GET {{baseUrl}}/api/fee?month=2025-01&type=Room
+
+###
+
+# Get overdue fees
+GET {{baseUrl}}/api/fee/overdue
+
+###
+
+### Test Transaction API
+# Create a transaction
+POST {{baseUrl}}/api/transaction
+Content-Type: application/json
+
+{
+  "feeId": 1,
+  "payerName": "Nguyen Van A",
+  "amount": 1500000
+}
+
+###
+
+# Get transactions by fee
+GET {{baseUrl}}/api/transaction/fee/1
+
+###
+
+# Get transactions by student
+GET {{baseUrl}}/api/transaction/student/2
+
+###
+
+### Test Utility API
+# Add utility reading
+POST {{baseUrl}}/api/utility
+Content-Type: application/json
+
+{
+  "roomId": 1,
+  "readingMonth": "2025-01",
+  "electric": 150.5,
+  "water": 25.3
+}
+
+###
+
+# Get readings by room
+GET {{baseUrl}}/api/utility/room/1
+
+###
+
+# Get readings by month
+GET {{baseUrl}}/api/utility/month/2025-01
+
+###
+
+# Get utility bill
+GET {{baseUrl}}/api/utility/bill/1/2025-01
+
+###
+
+### Test Request API
+# Create a request
+POST {{baseUrl}}/api/request
+Content-Type: application/json
+
+{
+  "studentId": 2,
+  "type": "Maintenance",
+  "description": "Air conditioner not working properly"
+}
+
+###
+
+# Get all requests
+GET {{baseUrl}}/api/request
+
+###
+
+# Get requests by user
+GET {{baseUrl}}/api/request/user/2
+
+###
+
+# Get requests by status
+GET {{baseUrl}}/api/request/status/Pending
+
+###
+
+# Update request status
+PUT {{baseUrl}}/api/request/1/status
+Content-Type: application/json
+
+"Approved"
+
+###
