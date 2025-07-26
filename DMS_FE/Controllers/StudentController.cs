@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace DMS_FE.Controllers
 {
-    public class DashboardController : Controller
+    public class StudentController : Controller
     {
         public IActionResult Index()
         {
             // Kiểm tra session
             var userRole = HttpContext.Session.GetString("UserRole");
-            if (string.IsNullOrEmpty(userRole) || userRole != "Manager")
+            if (string.IsNullOrEmpty(userRole) || userRole != "Student")
             {
                 return RedirectToAction("Index", "Home");
             }

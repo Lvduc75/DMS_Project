@@ -8,33 +8,68 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
+            <div class="text-center mb-4">
+                <h2 class="text-primary">StuDorm</h2>
+                <p class="text-muted">Hệ thống quản lý ký túc xá sinh viên</p>
+            </div>
+            
             <ul class="nav nav-tabs mb-3" id="loginTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="manager-tab" data-bs-toggle="tab" data-bs-target="#manager" type="button" role="tab" aria-controls="manager" aria-selected="true">Manager Login</button>
+                    <button class="nav-link active" id="manager-tab" data-bs-toggle="tab" data-bs-target="#manager" type="button" role="tab" aria-controls="manager" aria-selected="true">
+                        <i class="bi bi-person-gear"></i> Manager Login
+                    </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="student-tab" data-bs-toggle="tab" data-bs-target="#student" type="button" role="tab" aria-controls="student" aria-selected="false">Student Login</button>
+                    <button class="nav-link" id="student-tab" data-bs-toggle="tab" data-bs-target="#student" type="button" role="tab" aria-controls="student" aria-selected="false">
+                        <i class="bi bi-person"></i> Student Login
+                    </button>
                 </li>
             </ul>
+            
             <div class="tab-content" id="loginTabContent">
                 <div class="tab-pane fade show active" id="manager" role="tabpanel" aria-labelledby="manager-tab">
                     <form method="post" action="/Account/Login">
+                        <input type="hidden" name="role" value="Manager" />
                         <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required />
+                            <label for="managerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="managerEmail" name="email" required />
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required />
+                            <label for="managerPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="managerPassword" name="password" required />
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Login as Manager</button>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right"></i> Login as Manager
+                        </button>
                     </form>
                 </div>
+                
                 <div class="tab-pane fade" id="student" role="tabpanel" aria-labelledby="student-tab">
-                    <div class="alert alert-info mt-3">Chức năng đăng nhập sinh viên sẽ cập nhật sau.</div>
+                    <form method="post" action="/Account/Login">
+                        <input type="hidden" name="role" value="Student" />
+                        <div class="mb-3">
+                            <label for="studentEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="studentEmail" name="email" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="studentPassword" name="password" required />
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-box-arrow-in-right"></i> Login as Student
+                        </button>
+                    </form>
                 </div>
             </div>
+            
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger mt-3" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+                </div>
+            }
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

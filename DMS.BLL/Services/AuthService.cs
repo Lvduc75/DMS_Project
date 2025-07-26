@@ -22,7 +22,7 @@ namespace DMS.BLL.Services
 
         public string? Authenticate(LoginDTO loginDto)
         {
-            var user = _userRepository.GetUserByUsernameAndPassword(loginDto.Username, loginDto.Password);
+            var user = _userRepository.GetUserByEmailAndPassword(loginDto.Email, loginDto.Password);
             if (user == null) return null;
 
             var tokenHandler = new JwtSecurityTokenHandler();

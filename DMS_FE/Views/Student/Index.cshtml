@@ -1,12 +1,12 @@
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Student Dashboard";
 }
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Manager Dashboard</h2>
+                <h2>Student Dashboard</h2>
                 <div>
                     <span class="text-muted">Xin chào, @ViewBag.UserName</span>
                     <form method="post" action="/Account/Logout" style="display: inline;">
@@ -25,8 +25,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Tổng số phòng</h5>
-                            <h3 class="mb-0">150</h3>
+                            <h5 class="card-title">Phòng hiện tại</h5>
+                            <h3 class="mb-0">A101</h3>
                         </div>
                         <div class="align-self-center">
                             <i class="bi bi-house-door fs-1"></i>
@@ -41,11 +41,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Sinh viên</h5>
-                            <h3 class="mb-0">280</h3>
+                            <h5 class="card-title">Phí tháng này</h5>
+                            <h3 class="mb-0">500K</h3>
                         </div>
                         <div class="align-self-center">
-                            <i class="bi bi-people fs-1"></i>
+                            <i class="bi bi-currency-dollar fs-1"></i>
                         </div>
                     </div>
                 </div>
@@ -57,8 +57,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Yêu cầu mới</h5>
-                            <h3 class="mb-0">12</h3>
+                            <h5 class="card-title">Yêu cầu</h5>
+                            <h3 class="mb-0">2</h3>
                         </div>
                         <div class="align-self-center">
                             <i class="bi bi-clipboard-check fs-1"></i>
@@ -73,11 +73,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Doanh thu tháng</h5>
-                            <h3 class="mb-0">150M</h3>
+                            <h5 class="card-title">Thông báo</h5>
+                            <h3 class="mb-0">5</h3>
                         </div>
                         <div class="align-self-center">
-                            <i class="bi bi-currency-dollar fs-1"></i>
+                            <i class="bi bi-bell fs-1"></i>
                         </div>
                     </div>
                 </div>
@@ -89,31 +89,13 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Quản lý nhanh</h5>
+                    <h5 class="card-title mb-0">Thông tin cá nhân</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <a href="/Dormitory/Manage" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-building"></i> Quản lý KTX
-                            </a>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <a href="/Room/Manage" class="btn btn-outline-success w-100">
-                                <i class="bi bi-house"></i> Quản lý Phòng
-                            </a>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <a href="/Facility/Manage" class="btn btn-outline-warning w-100">
-                                <i class="bi bi-tools"></i> Quản lý Thiết bị
-                            </a>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <a href="/DormFacility/Manage" class="btn btn-outline-info w-100">
-                                <i class="bi bi-gear"></i> Thiết bị KTX
-                            </a>
-                        </div>
-                    </div>
+                    <p><strong>Họ tên:</strong> @ViewBag.UserName</p>
+                    <p><strong>Email:</strong> student@example.com</p>
+                    <p><strong>Phòng:</strong> A101 - Ký túc xá A</p>
+                    <p><strong>Ngày vào:</strong> 01/09/2024</p>
                 </div>
             </div>
         </div>
@@ -127,24 +109,17 @@
                     <div class="list-group list-group-flush">
                         <div class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1">Sửa chữa quạt - Phòng A101</h6>
-                                <small class="text-muted">Đã gửi: 2 giờ trước</small>
+                                <h6 class="mb-1">Sửa chữa quạt</h6>
+                                <small class="text-muted">Đã gửi: 2 ngày trước</small>
                             </div>
-                            <span class="badge bg-warning">Chờ xử lý</span>
+                            <span class="badge bg-warning">Đang xử lý</span>
                         </div>
                         <div class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1">Xin nghỉ tạm thời - Phòng B205</h6>
-                                <small class="text-muted">Đã gửi: 1 ngày trước</small>
+                                <h6 class="mb-1">Xin nghỉ tạm thời</h6>
+                                <small class="text-muted">Đã gửi: 1 tuần trước</small>
                             </div>
                             <span class="badge bg-success">Đã duyệt</span>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">Báo cáo vi phạm - Phòng C301</h6>
-                                <small class="text-muted">Đã gửi: 3 ngày trước</small>
-                            </div>
-                            <span class="badge bg-danger">Cần xử lý</span>
                         </div>
                     </div>
                 </div>

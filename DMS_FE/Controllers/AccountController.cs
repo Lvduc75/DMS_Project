@@ -5,39 +5,98 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-
-namespace DMS_FE.Models
-{
-    public class LoginViewModel
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Error { get; set; }
-    }
-}
+using DMS_FE.Models;
+using DMS_FE.Helpers;
 
 namespace DMS_FE.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly ApiHelper _apiHelper;
+
+        public AccountController(ApiHelper apiHelper)
+        {
+            _apiHelper = apiHelper;
+        }
+
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            // Redirect về trang chủ vì login form ở đó
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
-        public IActionResult Login(string username, string password)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            // TODO: Xử lý xác thực thật, tạm thời luôn thành công nếu có username
-            if (!string.IsNullOrEmpty(username))
+            if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password) || string.IsNullOrEmpty(model.Role))
             {
-                // Đăng nhập thành công, chuyển về Dashboard
-                return RedirectToAction("Index", "Dashboard");
+                TempData["Error"] = "Vui lòng nhập đầy đủ thông tin";
+                return RedirectToAction("Index", "Home");
             }
-            // Đăng nhập thất bại, quay lại login
-            ViewBag.Error = "Sai tài khoản hoặc mật khẩu";
-            return View();
+
+            try
+            {
+                var loginData = new
+                {
+                    Email = model.Email,
+                    Password = model.Password,
+                    Role = model.Role
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(loginData),
+                    Encoding.UTF8,
+                    "application/json"
+                );
+
+                var response = await _apiHelper.PostAsync("/api/Auth/login", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var userInfo = JsonConvert.DeserializeObject<UserInfoViewModel>(responseContent);
+                    
+                    // Lưu thông tin user vào session
+                    HttpContext.Session.SetString("UserId", userInfo.Id.ToString());
+                    HttpContext.Session.SetString("UserName", userInfo.Name);
+                    HttpContext.Session.SetString("UserEmail", userInfo.Email);
+                    HttpContext.Session.SetString("UserRole", userInfo.Role);
+
+                    // Chuyển hướng theo role
+                    if (userInfo.Role == "Manager")
+                    {
+                        return RedirectToAction("Index", "Dashboard");
+                    }
+                    else if (userInfo.Role == "Student")
+                    {
+                        return RedirectToAction("Index", "Student");
+                    }
+                    else
+                    {
+                        TempData["Error"] = "Vai trò không hợp lệ";
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    TempData["Error"] = errorContent.Replace("\"", "");
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi kết nối: " + ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index", "Home");
         }
     }
 } 

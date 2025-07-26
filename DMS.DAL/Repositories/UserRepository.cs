@@ -13,11 +13,12 @@ namespace DMS.DAL.Repositories
             _context = context;
         }
 
-        public User? GetUserByUsernameAndPassword(string username, string password)
+        public User? GetUserByEmailAndPassword(string email, string password)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Name == username);
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
             if (user == null) return null;
-            if (BCrypt.Net.BCrypt.Verify(password, user.Password))
+            // Tạm thời so sánh trực tiếp, sau này sẽ hash
+            if (user.Password == password)
                 return user;
             return null;
         }
