@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace DMS_FE.Models
 {
     public class FeeModel
@@ -9,6 +12,10 @@ namespace DMS_FE.Models
         public string Status { get; set; } = "unpaid";
         public DateTime CreatedAt { get; set; }
         public DateOnly? DueDate { get; set; }
+        
+        // Calculated properties
+        public decimal TotalPaidAmount { get; set; }
+        public decimal RemainingAmount { get; set; }
         
         // Navigation properties
         public UserModel? Student { get; set; }
@@ -22,5 +29,9 @@ namespace DMS_FE.Models
         public string? PayerName { get; set; }
         public DateOnly PaymentDate { get; set; }
         public decimal Amount { get; set; }
+        
+        // Additional properties for display
+        public string FeeType { get; set; } = string.Empty;
+        public string StudentName { get; set; } = string.Empty;
     }
 } 

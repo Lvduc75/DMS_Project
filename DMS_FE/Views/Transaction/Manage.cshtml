@@ -1,0 +1,122 @@
+@model IEnumerable<DMS_FE.Models.TransactionModel>
+
+@{
+    ViewData["Title"] = "Quản Lý Giao Dịch";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">Quản Lý Giao Dịch</h4>
+                    <div>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Tạo Giao Dịch Mới
+                        </a>
+                        <a asp-action="Summary" class="btn btn-info">
+                            <i class="bi bi-bar-chart"></i> Tổng Kết
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Sinh Viên</th>
+                                    <th>Loại Phí</th>
+                                    <th>Người Thanh Toán</th>
+                                    <th>Số Tiền</th>
+                                    <th>Ngày Thanh Toán</th>
+                                    <th>Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null && Model.Any())
+                                {
+                                    @foreach (var transaction in Model)
+                                    {
+                                        <tr>
+                                            <td>@transaction.Id</td>
+                                            <td>@transaction.StudentName</td>
+                                            <td>
+                                                <span class="badge bg-primary">@transaction.FeeType</span>
+                                            </td>
+                                            <td>@transaction.PayerName</td>
+                                            <td>
+                                                <span class="text-success fw-bold">@transaction.Amount.ToString("N0") VND</span>
+                                            </td>
+                                            <td>@transaction.PaymentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Edit" asp-route-id="@transaction.Id" class="btn btn-warning btn-sm">
+                                                        <i class="bi bi-pencil"></i> Sửa
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@transaction.Id" class="btn btn-danger btn-sm">
+                                                        <i class="bi bi-trash"></i> Xóa
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">
+                                            <i class="bi bi-inbox"></i> Chưa có giao dịch nào
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Thống Kê</h6>
+                                        <p class="mb-1">Tổng số giao dịch: <strong>@Model.Count()</strong></p>
+                                        <p class="mb-0">Tổng số tiền: <strong class="text-success">@Model.Sum(t => t.Amount).ToString("N0") VND</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        });
+    </script>
+} 

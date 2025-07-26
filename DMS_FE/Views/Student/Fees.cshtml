@@ -1,0 +1,444 @@
+@model List<DMS_FE.Models.FeeModel>
+@{
+    ViewData["Title"] = "Phí Của Tôi";
+    Layout = "_StudentLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-cash-coin me-2"></i>Phí Của Tôi
+        </h2>
+        <p class="text-muted mb-0">Xem và quản lý các khoản phí của bạn</p>
+    </div>
+    <div class="d-flex gap-2">
+        <span class="badge bg-primary fs-6">@Model?.Count phí</span>
+    </div>
+</div>
+
+<!-- Thống Kê Tổng Quan -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-primary bg-opacity-10">
+            <div class="card-body text-center">
+                <i class="bi bi-cash-coin text-primary mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-primary mb-1">@Model?.Sum(f => f.Amount).ToString("N0") VNĐ</h4>
+                <small class="text-muted">Tổng phí</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-success bg-opacity-10">
+            <div class="card-body text-center">
+                <i class="bi bi-check-circle text-success mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-success mb-1">@Model?.Sum(f => f.TotalPaidAmount).ToString("N0") VNĐ</h4>
+                <small class="text-muted">Đã thanh toán</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-warning bg-opacity-10">
+            <div class="card-body text-center">
+                <i class="bi bi-exclamation-triangle text-warning mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-warning mb-1">@Model?.Sum(f => f.RemainingAmount).ToString("N0") VNĐ</h4>
+                <small class="text-muted">Còn nợ</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card border-0 bg-danger bg-opacity-10">
+            <div class="card-body text-center">
+                <i class="bi bi-clock text-danger mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-danger mb-1">@Model?.Count(f => f.DueDate.HasValue && f.DueDate.Value < DateOnly.FromDateTime(DateTime.Now)).ToString()</h4>
+                <small class="text-muted">Phí quá hạn</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bộ Lọc -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Loại phí</label>
+                <select class="form-select" id="typeFilter">
+                    <option value="">Tất cả</option>
+                    <option value="room">Phí Phòng</option>
+                    <option value="electricity">Phí Điện</option>
+                    <option value="water">Phí Nước</option>
+                    <option value="internet">Phí Internet</option>
+                    <option value="maintenance">Phí Bảo Trì</option>
+                    <option value="other">Phí Khác</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select" id="statusFilter">
+                    <option value="">Tất cả</option>
+                    <option value="unpaid">Chưa Thanh Toán</option>
+                    <option value="paid">Đã Thanh Toán</option>
+                    <option value="partial">Thanh Toán Một Phần</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Tháng</label>
+                <select class="form-select" id="monthFilter">
+                    <option value="">Tất cả</option>
+                    <option value="1">Tháng 1</option>
+                    <option value="2">Tháng 2</option>
+                    <option value="3">Tháng 3</option>
+                    <option value="4">Tháng 4</option>
+                    <option value="5">Tháng 5</option>
+                    <option value="6">Tháng 6</option>
+                    <option value="7">Tháng 7</option>
+                    <option value="8">Tháng 8</option>
+                    <option value="9">Tháng 9</option>
+                    <option value="10">Tháng 10</option>
+                    <option value="11">Tháng 11</option>
+                    <option value="12">Tháng 12</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Năm</label>
+                <select class="form-select" id="yearFilter">
+                    <option value="">Tất cả</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row" id="feesContainer">
+        @foreach (var fee in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4 fee-item" 
+                 data-type="@fee.Type" 
+                 data-status="@fee.Status" 
+                 data-month="@fee.CreatedAt.Month" 
+                 data-year="@fee.CreatedAt.Year">
+                <div class="card h-100 border-0 shadow-sm hover-shadow">
+                    <div class="card-header @(fee.Status?.ToLower() == "paid" ? "bg-success" : fee.Status?.ToLower() == "partial" ? "bg-warning" : "bg-danger") text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="bi bi-cash-coin me-2"></i>@fee.Type
+                            </h6>
+                            <span class="badge bg-light @(fee.Status?.ToLower() == "paid" ? "text-success" : fee.Status?.ToLower() == "partial" ? "text-warning" : "text-danger")">
+                                @(fee.Status?.ToLower() == "paid" ? "Đã Thanh Toán" : fee.Status?.ToLower() == "partial" ? "Một Phần" : "Chưa Thanh Toán")
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded">
+                                        <h6 class="mb-1 text-primary">@fee.Amount.ToString("N0")</h6>
+                                        <small class="text-muted">Tổng phí</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bg-success bg-opacity-10 p-2 rounded">
+                                        <h6 class="mb-1 text-success">@fee.TotalPaidAmount.ToString("N0")</h6>
+                                        <small class="text-muted">Đã trả</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-calendar me-2"></i>@fee.CreatedAt.ToString("dd/MM/yyyy")
+                            </p>
+                            @if (fee.DueDate.HasValue)
+                            {
+                                <p class="text-muted mb-2 @(fee.DueDate.Value < DateOnly.FromDateTime(DateTime.Now) ? "text-danger" : "")">
+                                    <i class="bi bi-clock me-2"></i>Hạn: @fee.DueDate.Value.ToString("dd/MM/yyyy")
+                                </p>
+                            }
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-currency-dollar me-2"></i>Còn lại: @fee.RemainingAmount.ToString("N0") VNĐ
+                            </p>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#feeModal@(fee.Id)">
+                                <i class="bi bi-eye me-2"></i>Xem Chi Tiết
+                            </button>
+                            @if (fee.RemainingAmount > 0)
+                            {
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#paymentModal@(fee.Id)">
+                                    <i class="bi bi-credit-card me-2"></i>Thanh Toán
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Chi Tiết Phí -->
+            <div class="modal fade" id="feeModal@(fee.Id)" tabindex="-1" aria-labelledby="feeModalLabel@(fee.Id)" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header @(fee.Status?.ToLower() == "paid" ? "bg-success" : fee.Status?.ToLower() == "partial" ? "bg-warning" : "bg-danger") text-white">
+                            <h5 class="modal-title" id="feeModalLabel@(fee.Id)">
+                                <i class="bi bi-cash-coin me-2"></i>Chi Tiết Phí @fee.Type
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-info-circle me-2"></i>Thông Tin Phí
+                                    </h6>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <strong>Loại phí:</strong><br>
+                                            <span class="badge bg-primary">@fee.Type</span>
+                                        </li>
+                                        <li class="mb-2">
+                                            <strong>Số tiền:</strong><br>
+                                            <span class="text-success fw-bold">@fee.Amount.ToString("N0") VNĐ</span>
+                                        </li>
+                                        <li class="mb-2">
+                                            <strong>Trạng thái:</strong><br>
+                                            <span class="badge bg-@(fee.Status?.ToLower() == "paid" ? "success" : fee.Status?.ToLower() == "partial" ? "warning" : "danger")">
+                                                @(fee.Status?.ToLower() == "paid" ? "Đã Thanh Toán" : fee.Status?.ToLower() == "partial" ? "Thanh Toán Một Phần" : "Chưa Thanh Toán")
+                                            </span>
+                                        </li>
+                                        <li class="mb-2">
+                                            <strong>Ngày tạo:</strong><br>
+                                            <i class="bi bi-calendar me-2"></i>@fee.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </li>
+                                        @if (fee.DueDate.HasValue)
+                                        {
+                                            <li class="mb-2">
+                                                <strong>Hạn chót:</strong><br>
+                                                <i class="bi bi-clock me-2 @(fee.DueDate.Value < DateOnly.FromDateTime(DateTime.Now) ? "text-danger" : "")"></i>
+                                                <span class="@(fee.DueDate.Value < DateOnly.FromDateTime(DateTime.Now) ? "text-danger" : "")">
+                                                    @fee.DueDate.Value.ToString("dd/MM/yyyy")
+                                                </span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-graph-up me-2"></i>Thống Kê Thanh Toán
+                                    </h6>
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                                <h4 class="mb-1 text-primary">@fee.Amount.ToString("N0")</h4>
+                                                <small class="text-muted">Tổng phí</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="bg-success bg-opacity-10 p-3 rounded">
+                                                <h4 class="mb-1 text-success">@fee.TotalPaidAmount.ToString("N0")</h4>
+                                                <small class="text-muted">Đã trả</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                                <h4 class="mb-1 text-warning">@fee.RemainingAmount.ToString("N0")</h4>
+                                                <small class="text-muted">Còn lại</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if (fee.Transactions != null && fee.Transactions.Any())
+                            {
+                                <hr>
+                                <div class="mt-4">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-credit-card me-2"></i>Lịch Sử Thanh Toán
+                                    </h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Ngày</th>
+                                                    <th>Người thanh toán</th>
+                                                    <th>Số tiền</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var transaction in fee.Transactions)
+                                                {
+                                                    <tr>
+                                                        <td>@transaction.PaymentDate.ToString("dd/MM/yyyy")</td>
+                                                        <td>@transaction.PayerName</td>
+                                                        <td class="text-success">@transaction.Amount.ToString("N0") VNĐ</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            @if (fee.RemainingAmount > 0)
+                            {
+                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#paymentModal@(fee.Id)" data-bs-dismiss="modal">
+                                    <i class="bi bi-credit-card me-2"></i>Thanh Toán
+                                </button>
+                            }
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Thanh Toán -->
+            <div class="modal fade" id="paymentModal@(fee.Id)" tabindex="-1" aria-labelledby="paymentModalLabel@(fee.Id)" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title" id="paymentModalLabel@(fee.Id)">
+                                <i class="bi bi-credit-card me-2"></i>Thanh Toán Phí
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Thông tin phí:</strong><br>
+                                Loại: @fee.Type<br>
+                                Số tiền còn lại: @fee.RemainingAmount.ToString("N0") VNĐ
+                            </div>
+                            
+                            <form id="paymentForm@(fee.Id)">
+                                <div class="mb-3">
+                                    <label class="form-label">Tên người thanh toán</label>
+                                    <input type="text" class="form-control" id="payerName@(fee.Id)" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số tiền thanh toán</label>
+                                    <input type="number" class="form-control" id="amount@(fee.Id)" 
+                                           max="@fee.RemainingAmount" min="1000" step="1000" 
+                                           value="@fee.RemainingAmount" required>
+                                    <small class="text-muted">Tối đa: @fee.RemainingAmount.ToString("N0") VNĐ</small>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" onclick="submitPayment(@fee.Id)">
+                                <i class="bi bi-check-circle me-2"></i>Xác Nhận Thanh Toán
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <div class="bg-light rounded-circle d-inline-block p-4 mb-3">
+            <i class="bi bi-cash-coin text-muted" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="text-muted mb-2">Chưa có phí nào</h4>
+        <p class="text-muted">Bạn chưa có khoản phí nào trong hệ thống.</p>
+    </div>
+}
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+        transition: all 0.3s ease;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeFilter = document.getElementById('typeFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const monthFilter = document.getElementById('monthFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    const feeItems = document.querySelectorAll('.fee-item');
+
+    function filterFees() {
+        const type = typeFilter.value;
+        const status = statusFilter.value;
+        const month = monthFilter.value;
+        const year = yearFilter.value;
+
+        feeItems.forEach(item => {
+            let show = true;
+
+            if (type && item.dataset.type !== type) {
+                show = false;
+            }
+
+            if (status && item.dataset.status !== status) {
+                show = false;
+            }
+
+            if (month && item.dataset.month !== month) {
+                show = false;
+            }
+
+            if (year && item.dataset.year !== year) {
+                show = false;
+            }
+
+            item.style.display = show ? 'block' : 'none';
+        });
+    }
+
+    typeFilter.addEventListener('change', filterFees);
+    statusFilter.addEventListener('change', filterFees);
+    monthFilter.addEventListener('change', filterFees);
+    yearFilter.addEventListener('change', filterFees);
+});
+
+function submitPayment(feeId) {
+    const payerName = document.getElementById('payerName' + feeId).value;
+    const amount = document.getElementById('amount' + feeId).value;
+
+    if (!payerName || !amount) {
+        alert('Vui lòng điền đầy đủ thông tin!');
+        return;
+    }
+
+    const paymentData = {
+        feeId: feeId,
+        payerName: payerName,
+        amount: parseFloat(amount)
+    };
+
+    fetch('/api/transaction', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Thanh toán thành công!');
+            location.reload();
+        } else {
+            alert('Có lỗi xảy ra: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi thanh toán!');
+    });
+}
+</script> 

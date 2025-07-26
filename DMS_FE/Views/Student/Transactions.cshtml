@@ -1,0 +1,324 @@
+@model List<DMS_FE.Models.TransactionModel>
+@{
+    ViewData["Title"] = "Lịch Sử Giao Dịch";
+    Layout = "_StudentLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">
+            <i class="bi bi-credit-card me-2"></i>Lịch Sử Giao Dịch
+        </h2>
+        <p class="text-muted mb-0">Xem lịch sử các giao dịch thanh toán của bạn</p>
+    </div>
+    <div class="d-flex gap-2">
+        <span class="badge bg-primary fs-6">@Model?.Count giao dịch</span>
+    </div>
+</div>
+
+<!-- Thống Kê Tổng Quan -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 bg-success bg-opacity-10">
+            <div class="card-body text-center">
+                <i class="bi bi-cash-coin text-success mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-success mb-1">@Model?.Sum(t => t.Amount).ToString("N0") VNĐ</h4>
+                <small class="text-muted">Tổng thanh toán</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 bg-info bg-opacity-10">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-check text-info mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-info mb-1">@Model?.Count.ToString()</h4>
+                <small class="text-muted">Số giao dịch</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 bg-warning bg-opacity-10">
+            <div class="card-body text-center">
+                <i class="bi bi-graph-up text-warning mb-2" style="font-size: 2rem;"></i>
+                <h4 class="text-warning mb-1">@(Model?.GroupBy(t => t.PaymentDate).Count().ToString() ?? "0")</h4>
+                <small class="text-muted">Ngày giao dịch</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bộ Lọc -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Loại phí</label>
+                <select class="form-select" id="typeFilter">
+                    <option value="">Tất cả</option>
+                    <option value="room">Phí Phòng</option>
+                    <option value="electricity">Phí Điện</option>
+                    <option value="water">Phí Nước</option>
+                    <option value="internet">Phí Internet</option>
+                    <option value="maintenance">Phí Bảo Trì</option>
+                    <option value="other">Phí Khác</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Tháng</label>
+                <select class="form-select" id="monthFilter">
+                    <option value="">Tất cả</option>
+                    <option value="1">Tháng 1</option>
+                    <option value="2">Tháng 2</option>
+                    <option value="3">Tháng 3</option>
+                    <option value="4">Tháng 4</option>
+                    <option value="5">Tháng 5</option>
+                    <option value="6">Tháng 6</option>
+                    <option value="7">Tháng 7</option>
+                    <option value="8">Tháng 8</option>
+                    <option value="9">Tháng 9</option>
+                    <option value="10">Tháng 10</option>
+                    <option value="11">Tháng 11</option>
+                    <option value="12">Tháng 12</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Năm</label>
+                <select class="form-select" id="yearFilter">
+                    <option value="">Tất cả</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Sắp xếp</label>
+                <select class="form-select" id="sortFilter">
+                    <option value="newest">Mới nhất</option>
+                    <option value="oldest">Cũ nhất</option>
+                    <option value="highest">Số tiền cao nhất</option>
+                    <option value="lowest">Số tiền thấp nhất</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="transactionsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Loại Phí</th>
+                            <th>Người Thanh Toán</th>
+                            <th>Số Tiền</th>
+                            <th>Ngày Thanh Toán</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var transaction in Model)
+                        {
+                            <tr class="transaction-item" 
+                                data-type="@transaction.FeeType" 
+                                data-month="@transaction.PaymentDate.Month" 
+                                data-year="@transaction.PaymentDate.Year"
+                                data-amount="@transaction.Amount"
+                                data-date="@transaction.PaymentDate.ToString("yyyy-MM-dd")">
+                                <td>
+                                    <span class="badge bg-secondary">#@transaction.Id</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">@transaction.FeeType</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-person-circle text-primary me-2"></i>
+                                        <span>@transaction.PayerName</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-success fw-bold">@transaction.Amount.ToString("N0") VNĐ</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-calendar text-info me-2"></i>
+                                        <span>@transaction.PaymentDate.ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#transactionModal@(transaction.Id)">
+                                        <i class="bi bi-eye me-1"></i>Chi Tiết
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals Chi Tiết Giao Dịch -->
+    @foreach (var transaction in Model)
+    {
+        <div class="modal fade" id="transactionModal@(transaction.Id)" tabindex="-1" aria-labelledby="transactionModalLabel@(transaction.Id)" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title" id="transactionModalLabel@(transaction.Id)">
+                            <i class="bi bi-credit-card me-2"></i>Chi Tiết Giao Dịch #@transaction.Id
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="mb-3">
+                                    <i class="bi bi-info-circle me-2"></i>Thông Tin Giao Dịch
+                                </h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <strong>ID Giao dịch:</strong><br>
+                                        <span class="badge bg-secondary">#@transaction.Id</span>
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong>Loại phí:</strong><br>
+                                        <span class="badge bg-primary">@transaction.FeeType</span>
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong>Người thanh toán:</strong><br>
+                                        <i class="bi bi-person-circle text-primary me-2"></i>@transaction.PayerName
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong>Số tiền:</strong><br>
+                                        <span class="text-success fw-bold">@transaction.Amount.ToString("N0") VNĐ</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-3">
+                                    <i class="bi bi-calendar me-2"></i>Thông Tin Thời Gian
+                                </h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <strong>Ngày thanh toán:</strong><br>
+                                        <i class="bi bi-calendar text-info me-2"></i>@transaction.PaymentDate.ToString("dd/MM/yyyy")
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong>Giờ thanh toán:</strong><br>
+                                        <i class="bi bi-clock text-info me-2"></i>@transaction.PaymentDate.ToString("HH:mm")
+                                    </li>
+                                    <li class="mb-2">
+                                        <strong>ID Phí:</strong><br>
+                                        <span class="badge bg-secondary">#@transaction.FeeId</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-success mt-3">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <strong>Giao dịch thành công!</strong><br>
+                            Thanh toán đã được ghi nhận vào hệ thống.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="text-center py-5">
+        <div class="bg-light rounded-circle d-inline-block p-4 mb-3">
+            <i class="bi bi-credit-card text-muted" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="text-muted mb-2">Chưa có giao dịch nào</h4>
+        <p class="text-muted">Bạn chưa có giao dịch thanh toán nào trong hệ thống.</p>
+        <a href="/Student/Fees" class="btn btn-primary">
+            <i class="bi bi-cash-coin me-2"></i>Xem Phí Của Tôi
+        </a>
+    </div>
+}
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,.075);
+        cursor: pointer;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeFilter = document.getElementById('typeFilter');
+    const monthFilter = document.getElementById('monthFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const transactionItems = document.querySelectorAll('.transaction-item');
+
+    function filterTransactions() {
+        const type = typeFilter.value;
+        const month = monthFilter.value;
+        const year = yearFilter.value;
+        const sort = sortFilter.value;
+
+        let visibleItems = [];
+
+        transactionItems.forEach(item => {
+            let show = true;
+
+            if (type && item.dataset.type !== type) {
+                show = false;
+            }
+
+            if (month && item.dataset.month !== month) {
+                show = false;
+            }
+
+            if (year && item.dataset.year !== year) {
+                show = false;
+            }
+
+            if (show) {
+                visibleItems.push(item);
+            }
+
+            item.style.display = show ? 'table-row' : 'none';
+        });
+
+        // Sắp xếp
+        visibleItems.sort((a, b) => {
+            switch (sort) {
+                case 'newest':
+                    return new Date(b.dataset.date) - new Date(a.dataset.date);
+                case 'oldest':
+                    return new Date(a.dataset.date) - new Date(b.dataset.date);
+                case 'highest':
+                    return parseFloat(b.dataset.amount) - parseFloat(a.dataset.amount);
+                case 'lowest':
+                    return parseFloat(a.dataset.amount) - parseFloat(b.dataset.amount);
+                default:
+                    return 0;
+            }
+        });
+
+        // Sắp xếp lại trong DOM
+        const tbody = document.querySelector('#transactionsTable tbody');
+        visibleItems.forEach(item => {
+            tbody.appendChild(item);
+        });
+    }
+
+    typeFilter.addEventListener('change', filterTransactions);
+    monthFilter.addEventListener('change', filterTransactions);
+    yearFilter.addEventListener('change', filterTransactions);
+    sortFilter.addEventListener('change', filterTransactions);
+});
+</script> 

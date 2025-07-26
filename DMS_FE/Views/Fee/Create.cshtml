@@ -1,0 +1,139 @@
+@model DMS_FE.Models.FeeModel
+
+@{
+    ViewData["Title"] = "Tạo Phí Mới";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-plus-circle"></i> Tạo Phí Mới
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="StudentId" class="form-label">Sinh Viên <span class="text-danger">*</span></label>
+                                    <select asp-for="StudentId" class="form-select" required>
+                                        <option value="">-- Chọn Sinh Viên --</option>
+                                        @if (ViewBag.Students != null)
+                                        {
+                                            @foreach (var student in ViewBag.Students)
+                                            {
+                                                <option value="@student.Id">@student.Name</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="StudentId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Type" class="form-label">Loại Phí <span class="text-danger">*</span></label>
+                                    <select asp-for="Type" class="form-select" required>
+                                        <option value="">-- Chọn Loại Phí --</option>
+                                        <option value="Tiền phòng">Tiền phòng</option>
+                                        <option value="Tiền điện">Tiền điện</option>
+                                        <option value="Tiền nước">Tiền nước</option>
+                                        <option value="Tiền internet">Tiền internet</option>
+                                        <option value="Tiền vệ sinh">Tiền vệ sinh</option>
+                                        <option value="Phí dịch vụ">Phí dịch vụ</option>
+                                        <option value="Phí khác">Phí khác</option>
+                                    </select>
+                                    <span asp-validation-for="Type" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Amount" class="form-label">Số Tiền (VND) <span class="text-danger">*</span></label>
+                                    <input asp-for="Amount" class="form-control" type="number" step="1000" min="0" required />
+                                    <span asp-validation-for="Amount" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Status" class="form-label">Trạng Thái</label>
+                                    <select asp-for="Status" class="form-select">
+                                        <option value="unpaid">Chưa thanh toán</option>
+                                        <option value="paid">Đã thanh toán</option>
+                                        <option value="partial">Thanh toán một phần</option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="DueDate" class="form-label">Hạn Chót Thanh Toán</label>
+                                    <input asp-for="DueDate" class="form-control" type="date" />
+                                    <span asp-validation-for="DueDate" class="text-danger"></span>
+                                    <div class="form-text">Để trống nếu không có hạn chót</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Manage" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Quay Lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Tạo Phí
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+
+            // Format amount input
+            $('#Amount').on('input', function() {
+                var value = $(this).val();
+                if (value && !isNaN(value)) {
+                    $(this).val(parseInt(value).toLocaleString('vi-VN'));
+                }
+            });
+
+            // Remove formatting on form submit
+            $('form').on('submit', function() {
+                var amount = $('#Amount').val();
+                if (amount) {
+                    $('#Amount').val(amount.replace(/[^\d]/g, ''));
+                }
+            });
+        });
+    </script>
+} 

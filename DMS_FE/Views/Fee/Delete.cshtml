@@ -1,0 +1,158 @@
+@model DMS_FE.Models.FeeModel
+
+@{
+    ViewData["Title"] = "Xóa Phí";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Xác Nhận Xóa Phí
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="bi bi-exclamation-triangle"></i> Cảnh Báo!</h5>
+                        <p>Bạn có chắc chắn muốn xóa phí này? Hành động này không thể hoàn tác.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Thông Tin Phí</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>ID:</strong></td>
+                                    <td>@Model.Id</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sinh Viên:</strong></td>
+                                    <td>@Model.Student?.Name</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Loại Phí:</strong></td>
+                                    <td>
+                                        <span class="badge bg-primary">@Model.Type</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Số Tiền:</strong></td>
+                                    <td class="text-success fw-bold">@Model.Amount.ToString("N0") VND</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Chi Tiết Khác</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Trạng Thái:</strong></td>
+                                    <td>
+                                        @switch (Model.Status?.ToLower())
+                                        {
+                                            case "paid":
+                                                <span class="badge bg-success">Đã Thanh Toán</span>
+                                                break;
+                                            case "unpaid":
+                                                <span class="badge bg-danger">Chưa Thanh Toán</span>
+                                                break;
+                                            case "partial":
+                                                <span class="badge bg-warning">Thanh Toán Một Phần</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-secondary">@Model.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ngày Tạo:</strong></td>
+                                    <td>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Hạn Chót:</strong></td>
+                                    <td>
+                                        @if (Model.DueDate.HasValue)
+                                        {
+                                            <span class="@(Model.DueDate.Value < DateOnly.FromDateTime(DateTime.Now) ? "text-danger" : "")">
+                                                @Model.DueDate.Value.ToString("dd/MM/yyyy")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Không có</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Đã Thanh Toán:</strong></td>
+                                    <td class="text-success">@Model.TotalPaidAmount.ToString("N0") VND</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Còn Lại:</strong></td>
+                                    <td class="text-warning">@Model.RemainingAmount.ToString("N0") VND</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    @if (Model.Transactions != null && Model.Transactions.Any())
+                    {
+                        <div class="mt-4">
+                            <h6 class="text-danger">
+                                <i class="bi bi-exclamation-triangle"></i> Lưu Ý: Phí này có @Model.Transactions.Count() giao dịch thanh toán
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ngày</th>
+                                            <th>Người Thanh Toán</th>
+                                            <th>Số Tiền</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var transaction in Model.Transactions)
+                                        {
+                                            <tr>
+                                                <td>@transaction.PaymentDate.ToString("dd/MM/yyyy")</td>
+                                                <td>@transaction.PayerName</td>
+                                                <td>@transaction.Amount.ToString("N0") VND</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Xác Nhận Xóa
+                            </button>
+                            <a asp-action="Manage" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Hủy Bỏ
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Confirm before delete
+            $('form').on('submit', function(e) {
+                if (!confirm('Bạn có chắc chắn muốn xóa phí này? Hành động này không thể hoàn tác.')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+} 

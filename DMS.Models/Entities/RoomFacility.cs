@@ -13,6 +13,8 @@ public partial class RoomFacility
 
     public int Quantity { get; set; }
 
+    public string Status { get; set; } = "Active";
+
     public virtual Facility Facility { get; set; } = null!;
 
     public virtual Room Room { get; set; } = null!;

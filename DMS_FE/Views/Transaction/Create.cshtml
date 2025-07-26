@@ -1,0 +1,79 @@
+@model DMS_FE.Models.TransactionModel
+
+@{
+    ViewData["Title"] = "Tạo Giao Dịch Mới";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Tạo Giao Dịch Mới</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="FeeId" class="control-label">Chọn Phí</label>
+                            <select asp-for="FeeId" class="form-control" id="feeSelect">
+                                <option value="">-- Chọn phí --</option>
+                                @if (ViewBag.Fees != null)
+                                {
+                                    @foreach (var fee in ViewBag.Fees)
+                                    {
+                                        <option value="@fee.Id" data-amount="@fee.Amount" data-type="@fee.Type" data-student="@fee.Student?.Name">
+                                            @fee.Student?.Name - @fee.Type - @fee.Amount.ToString("N0") VND
+                                        </option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="FeeId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="PayerName" class="control-label">Tên Người Thanh Toán</label>
+                            <input asp-for="PayerName" class="form-control" />
+                            <span asp-validation-for="PayerName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Amount" class="control-label">Số Tiền</label>
+                            <input asp-for="Amount" class="form-control" type="number" step="1000" />
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-primary">Tạo Giao Dịch</button>
+                            <a asp-action="Manage" class="btn btn-secondary">Quay Lại</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            $('#feeSelect').change(function() {
+                var selectedOption = $(this).find('option:selected');
+                var amount = selectedOption.data('amount');
+                var type = selectedOption.data('type');
+                var student = selectedOption.data('student');
+                
+                if (amount) {
+                    $('#Amount').val(amount);
+                    $('#Amount').attr('readonly', true);
+                } else {
+                    $('#Amount').val('');
+                    $('#Amount').attr('readonly', false);
+                }
+            });
+        });
+    </script>
+} 

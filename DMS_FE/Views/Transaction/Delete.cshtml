@@ -1,0 +1,102 @@
+@model DMS_FE.Models.TransactionModel
+
+@{
+    ViewData["Title"] = "Xóa Giao Dịch";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Xác Nhận Xóa Giao Dịch
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="bi bi-exclamation-triangle"></i> Cảnh Báo!</h5>
+                        <p>Bạn có chắc chắn muốn xóa giao dịch này? Hành động này không thể hoàn tác.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Thông Tin Giao Dịch</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>ID:</strong></td>
+                                    <td>@Model.Id</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sinh Viên:</strong></td>
+                                    <td>@Model.StudentName</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Loại Phí:</strong></td>
+                                    <td>
+                                        <span class="badge bg-primary">@Model.FeeType</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Người Thanh Toán:</strong></td>
+                                    <td>@Model.PayerName</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Chi Tiết Thanh Toán</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Số Tiền:</strong></td>
+                                    <td class="text-success fw-bold">@Model.Amount.ToString("N0") VND</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ngày Thanh Toán:</strong></td>
+                                    <td>@Model.PaymentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ID Phí:</strong></td>
+                                    <td>@Model.FeeId</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                        <h6><i class="bi bi-info-circle"></i> Lưu Ý</h6>
+                        <ul class="mb-0">
+                            <li>Giao dịch này sẽ bị xóa vĩnh viễn</li>
+                            <li>Không ảnh hưởng đến phí gốc</li>
+                            <li>Có thể tạo giao dịch mới nếu cần</li>
+                        </ul>
+                    </div>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Xác Nhận Xóa
+                            </button>
+                            <a asp-action="Manage" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Hủy Bỏ
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Confirm before delete
+            $('form').on('submit', function(e) {
+                if (!confirm('Bạn có chắc chắn muốn xóa giao dịch này? Hành động này không thể hoàn tác.')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+} 

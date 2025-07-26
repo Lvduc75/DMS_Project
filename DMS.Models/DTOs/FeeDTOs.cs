@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace DMS.Models.DTOs
 {
@@ -31,5 +32,12 @@ namespace DMS.Models.DTOs
         public string Status { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public DateOnly? DueDate { get; set; }
+        
+        // Calculated properties
+        public decimal TotalPaidAmount { get; set; }
+        public decimal RemainingAmount { get; set; }
+        
+        // Navigation properties
+        public List<TransactionResponseDTO> Transactions { get; set; } = new List<TransactionResponseDTO>();
     }
 } 

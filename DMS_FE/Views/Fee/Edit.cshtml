@@ -1,0 +1,102 @@
+@model DMS_FE.Models.FeeModel
+
+@{
+    ViewData["Title"] = "Chỉnh Sửa Phí";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Chỉnh Sửa Phí</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="StudentId" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Type" class="control-label">Loại Phí</label>
+                                    <select asp-for="Type" class="form-control">
+                                        <option value="">-- Chọn loại phí --</option>
+                                        <option value="room">Phí Phòng</option>
+                                        <option value="electricity">Phí Điện</option>
+                                        <option value="water">Phí Nước</option>
+                                        <option value="internet">Phí Internet</option>
+                                        <option value="maintenance">Phí Bảo Trì</option>
+                                        <option value="other">Phí Khác</option>
+                                    </select>
+                                    <span asp-validation-for="Type" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Amount" class="control-label">Số Tiền (VND)</label>
+                                    <input asp-for="Amount" class="form-control" type="number" step="1000" />
+                                    <span asp-validation-for="Amount" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Status" class="control-label">Trạng Thái</label>
+                                    <select asp-for="Status" class="form-control">
+                                        <option value="unpaid">Chưa Thanh Toán</option>
+                                        <option value="paid">Đã Thanh Toán</option>
+                                        <option value="partial">Thanh Toán Một Phần</option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="DueDate" class="control-label">Hạn Chót</label>
+                                    <input asp-for="DueDate" class="form-control" type="date" />
+                                    <span asp-validation-for="DueDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Cập Nhật Phí
+                            </button>
+                            <a asp-action="Manage" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Quay Lại
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Format amount input
+            $('#Amount').on('input', function() {
+                var value = $(this).val();
+                if (value) {
+                    $(this).val(parseInt(value).toLocaleString('vi-VN'));
+                }
+            });
+
+            // Auto-select the current fee type
+            var currentType = '@Model.Type';
+            if (currentType) {
+                $('#Type').val(currentType);
+            }
+        });
+    </script>
+} 
